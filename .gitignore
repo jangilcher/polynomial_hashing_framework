@@ -50,3 +50,22 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+#framework specific folders
+**/bin
+**/obj
+**/asm
+**/.vscode
+**/.ipynb_checkpoints
+**/.jupyter
+**/measurements
+**/plots
+src/field_arithmetic/*.h
+**/*_results.csv
+bench/
+**/hacl-star-*
+**/hacl_include
+lib
+**/*.log
+**/*.sage.py
+**/results
