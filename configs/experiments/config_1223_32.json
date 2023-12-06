@@ -1,0 +1,312 @@
+[{
+    "name": "poly1223",
+    "ref": false,
+    "keysize": 15,
+    "blocksize": 15,
+    "tagsize": 16,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 122,
+        "delta": 3
+    },
+    "wordsize": 32,
+    "limbs": [
+        25,
+        25,
+        25,
+        25,
+        22
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 1,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 3,
+        "options": {
+            "byte": "0x1",
+            "mask": [
+                "0xffffffff"
+            ],
+            "encodeLSB": false
+        }
+    },
+    "field_transform": {
+        "id": 1
+    },
+    "polynomial": {
+        "name": "classical_ParallelHorner_UPK_1B_Delay_a",
+        "parameters": [
+            1
+        ],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "poly1223_2Branch",
+    "ref": false,
+    "keysize": 15,
+    "blocksize": 15,
+    "tagsize": 16,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 122,
+        "delta": 3
+    },
+    "wordsize": 32,
+    "limbs": [
+        25,
+        25,
+        25,
+        25,
+        22
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 1,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 3,
+        "options": {
+            "byte": "0x1",
+            "mask": [
+                "0xffffffff"
+            ],
+            "encodeLSB": false
+        }
+    },
+    "field_transform": {
+        "id": 1
+    },
+    "polynomial": {
+        "name": "classical_ParallelHorner_UPK_1B_Delay_a",
+        "parameters": [
+            2
+        ],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "poly1223_3Branch",
+    "ref": false,
+    "keysize": 15,
+    "blocksize": 15,
+    "tagsize": 16,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 122,
+        "delta": 3
+    },
+    "wordsize": 32,
+    "limbs": [
+        25,
+        25,
+        25,
+        25,
+        22
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 1,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 3,
+        "options": {
+            "byte": "0x1",
+            "mask": [
+                "0xffffffff"
+            ],
+            "encodeLSB": false
+        }
+    },
+    "field_transform": {
+        "id": 1
+    },
+    "polynomial": {
+        "name": "classical_ParallelHorner_UPK_1B_Delay_a",
+        "parameters": [
+            3
+        ],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "poly1223_4Branch",
+    "ref": false,
+    "keysize": 15,
+    "blocksize": 15,
+    "tagsize": 16,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 122,
+        "delta": 3
+    },
+    "wordsize": 32,
+    "limbs": [
+        25,
+        25,
+        25,
+        25,
+        22
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 1,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 3,
+        "options": {
+            "byte": "0x1",
+            "mask": [
+                "0xffffffff"
+            ],
+            "encodeLSB": false
+        }
+    },
+    "field_transform": {
+        "id": 1
+    },
+    "polynomial": {
+        "name": "classical_ParallelHorner_UPK_1B_Delay_a",
+        "parameters": [
+            4
+        ],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "poly1223_8Branch",
+    "ref": false,
+    "keysize": 15,
+    "blocksize": 15,
+    "tagsize": 16,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 122,
+        "delta": 3
+    },
+    "wordsize": 32,
+    "limbs": [
+        25,
+        25,
+        25,
+        25,
+        22
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 1,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 3,
+        "options": {
+            "byte": "0x1",
+            "mask": [
+                "0xffffffff"
+            ],
+            "encodeLSB": false
+        }
+    },
+    "field_transform": {
+        "id": 1
+    },
+    "polynomial": {
+        "name": "classical_ParallelHorner_UPK_1B_Delay_a",
+        "parameters": [
+            8
+        ],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "poly1223_2Block_2L",
+    "ref": false,
+    "keysize": 15,
+    "blocksize": 15,
+    "tagsize": 16,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 122,
+        "delta": 3
+    },
+    "wordsize": 32,
+    "limbs": [
+        25,
+        25,
+        25,
+        25,
+        22
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 1,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 3,
+        "options": {
+            "byte": "0x1",
+            "mask": [
+                "0xffffffff"
+            ],
+            "encodeLSB": false
+        }
+    },
+    "field_transform": {
+        "id": 1
+    },
+    "polynomial": {
+        "name": "classical_2level_NB_UPK_Delay_a",
+        "parameters": [
+            2
+        ],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+}]

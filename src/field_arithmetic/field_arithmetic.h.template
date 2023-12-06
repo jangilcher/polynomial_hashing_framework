@@ -1,0 +1,27 @@
+#ifndef __FIELD_ARITHMETIC_H
+#define __FIELD_ARITHMETIC_H
+#include <stdint.h>
+
+typedef struct field_elem {} field_elem_t;
+
+typedef struct dfield_elem {} dfield_elem_t;
+
+void field_mul (field_elem_t* res, field_elem_t* a, field_elem_t* b);
+
+void field_add (field_elem_t* res, field_elem_t* a, field_elem_t* b);
+
+void field_sqr (field_elem_t* res, field_elem_t* a);
+
+void field_mul_no_carry (dfield_elem_t* res, field_elem_t* a, field_elem_t* b);
+
+void field_add_dbl (dfield_elem_t* res, dfield_elem_t* a, dfield_elem_t* b);
+
+void field_sqr_no_carry (dfield_elem_t* res, field_elem_t* a);
+
+void carry_round(field_elem_t* res, dfield_elem_t* a);
+
+void pack_field_elem(uint64_t* res, field_elem_t* a);
+
+void unpack_field_elem(field_elem_t* res, uint64_t* a);
+
+#endif

@@ -1,0 +1,618 @@
+[{
+    "name": "poly1305",
+    "ref": false,
+    "keysize": 16,
+    "blocksize": 16,
+    "tagsize": 17,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 130,
+        "delta": 5
+    },
+    "wordsize": 64,
+    "limbs": [
+        44,
+        44,
+        42
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 9,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 3,
+        "options": {
+            "byte": "0x1",
+            "mask": [
+                "0xffffffffffffffff"
+            ],
+            "encodeLSB": false
+        }
+    },
+    "field_transform": {
+        "id": 0
+    },
+    "polynomial": {
+        "name": "classical_ParallelHorner_UPK_1B_Delay_a",
+        "parameters": [
+            1
+        ],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "poly1305_2Branch",
+    "ref": false,
+    "keysize": 16,
+    "blocksize": 16,
+    "tagsize": 17,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 130,
+        "delta": 5
+    },
+    "wordsize": 64,
+    "limbs": [
+        44,
+        44,
+        42
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 9,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 3,
+        "options": {
+            "byte": "0x1",
+            "mask": [
+                "0xffffffffffffffff"
+            ],
+            "encodeLSB": false
+        }
+    },
+    "field_transform": {
+        "id": 0
+    },
+    "polynomial": {
+        "name": "classical_ParallelHorner_UPK_1B_Delay_a",
+        "parameters": [
+            2
+        ],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "poly1305_3Branch",
+    "ref": false,
+    "keysize": 16,
+    "blocksize": 16,
+    "tagsize": 17,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 130,
+        "delta": 5
+    },
+    "wordsize": 64,
+    "limbs": [
+        44,
+        44,
+        42
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 9,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 3,
+        "options": {
+            "byte": "0x1",
+            "mask": [
+                "0xffffffffffffffff"
+            ],
+            "encodeLSB": false
+        }
+    },
+    "field_transform": {
+        "id": 0
+    },
+    "polynomial": {
+        "name": "classical_ParallelHorner_UPK_1B_Delay_a",
+        "parameters": [
+            3
+        ],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "poly1305_4Branch",
+    "ref": false,
+    "keysize": 16,
+    "blocksize": 16,
+    "tagsize": 17,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 130,
+        "delta": 5
+    },
+    "wordsize": 64,
+    "limbs": [
+        44,
+        44,
+        42
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 9,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 3,
+        "options": {
+            "byte": "0x1",
+            "mask": [
+                "0xffffffffffffffff"
+            ],
+            "encodeLSB": false
+        }
+    },
+    "field_transform": {
+        "id": 0
+    },
+    "polynomial": {
+        "name": "classical_ParallelHorner_UPK_1B_Delay_a",
+        "parameters": [
+            4
+        ],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "poly1305_8Branch",
+    "ref": false,
+    "keysize": 16,
+    "blocksize": 16,
+    "tagsize": 17,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 130,
+        "delta": 5
+    },
+    "wordsize": 64,
+    "limbs": [
+        44,
+        44,
+        42
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 9,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 3,
+        "options": {
+            "byte": "0x1",
+            "mask": [
+                "0xffffffffffffffff"
+            ],
+            "encodeLSB": false
+        }
+    },
+    "field_transform": {
+        "id": 0
+    },
+    "polynomial": {
+        "name": "classical_ParallelHorner_UPK_1B_Delay_a",
+        "parameters": [
+            8
+        ],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "poly1305_2Block_2L",
+    "ref": false,
+    "keysize": 16,
+    "blocksize": 16,
+    "tagsize": 17,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 130,
+        "delta": 5
+    },
+    "wordsize": 64,
+    "limbs": [
+        44,
+        44,
+        42
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 9,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 3,
+        "options": {
+            "byte": "0x1",
+            "mask": [
+                "0xffffffffffffffff"
+            ],
+            "encodeLSB": false
+        }
+    },
+    "field_transform": {
+        "id": 0
+    },
+    "polynomial": {
+        "name": "classical_2level_NB_UPK_Delay_a",
+        "parameters": [
+            2
+        ],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "poly1305_3Block_2L",
+    "ref": false,
+    "keysize": 16,
+    "blocksize": 16,
+    "tagsize": 17,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 130,
+        "delta": 5
+    },
+    "wordsize": 64,
+    "limbs": [
+        44,
+        44,
+        42
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 9,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 3,
+        "options": {
+            "byte": "0x1",
+            "mask": [
+                "0xffffffffffffffff"
+            ],
+            "encodeLSB": false
+        }
+    },
+    "field_transform": {
+        "id": 0
+    },
+    "polynomial": {
+        "name": "classical_2level_NB_UPK_Delay_a",
+        "parameters": [
+            3
+        ],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "poly1305_4Block_2L",
+    "ref": false,
+    "keysize": 16,
+    "blocksize": 16,
+    "tagsize": 17,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 130,
+        "delta": 5
+    },
+    "wordsize": 64,
+    "limbs": [
+        44,
+        44,
+        42
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 9,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 3,
+        "options": {
+            "byte": "0x1",
+            "mask": [
+                "0xffffffffffffffff"
+            ],
+            "encodeLSB": false
+        }
+    },
+    "field_transform": {
+        "id": 0
+    },
+    "polynomial": {
+        "name": "classical_2level_NB_UPK_Delay_a",
+        "parameters": [
+            4
+        ],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "poly1305_8Block_2L",
+    "ref": false,
+    "keysize": 16,
+    "blocksize": 16,
+    "tagsize": 17,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 130,
+        "delta": 5
+    },
+    "wordsize": 64,
+    "limbs": [
+        44,
+        44,
+        42
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 9,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 3,
+        "options": {
+            "byte": "0x1",
+            "mask": [
+                "0xffffffffffffffff"
+            ],
+            "encodeLSB": false
+        }
+    },
+    "field_transform": {
+        "id": 0
+    },
+    "polynomial": {
+        "name": "classical_2level_NB_UPK_Delay_a",
+        "parameters": [
+            8
+        ],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "poly1305_KeyClamp",
+    "ref": false,
+    "keysize": 16,
+    "blocksize": 16,
+    "tagsize": 17,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 130,
+        "delta": 5
+    },
+    "wordsize": 64,
+    "limbs": [
+        44,
+        44,
+        42
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 9,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 10,
+        "options": null
+    },
+    "field_transform": {
+        "id": 0
+    },
+    "polynomial": {
+        "name": "classical_Horner_PK_1B_Delay_a_OKC_appbit",
+        "parameters": [],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "poly1305_3Block_2L_2radix",
+    "ref": false,
+    "keysize": 16,
+    "blocksize": 16,
+    "tagsize": 17,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 130,
+        "delta": 5
+    },
+    "wordsize": 64,
+    "limbs": [
+        44,
+        44,
+        42
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 9,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 10,
+        "options": null
+    },
+    "field_transform": {
+        "id": 0
+    },
+    "polynomial": {
+        "name": "classical_2level_3B_PK_Delay_b_appbit_2radix",
+        "parameters": [],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "poly1305_4Block_2L_2radix",
+    "ref": false,
+    "keysize": 16,
+    "blocksize": 16,
+    "tagsize": 17,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 130,
+        "delta": 5
+    },
+    "wordsize": 64,
+    "limbs": [
+        44,
+        44,
+        42
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 9,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 10,
+        "options": null
+    },
+    "field_transform": {
+        "id": 0
+    },
+    "polynomial": {
+        "name": "classical_2level_4B_PK_Delay_b_appbit_2radix",
+        "parameters": [],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "poly1305_8Block_2L_2radix",
+    "ref": false,
+    "keysize": 16,
+    "blocksize": 16,
+    "tagsize": 17,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 130,
+        "delta": 5
+    },
+    "wordsize": 64,
+    "limbs": [
+        44,
+        44,
+        42
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 9,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 10,
+        "options": null
+    },
+    "field_transform": {
+        "id": 0
+    },
+    "polynomial": {
+        "name": "classical_2level_8B_PK_Delay_b_appbit_2radix",
+        "parameters": [],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+}]

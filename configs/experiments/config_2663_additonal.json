@@ -1,0 +1,98 @@
+[{
+    "name": "cpoly1305",
+    "ref": false,
+    "keysize": 32,
+    "blocksize": 16,
+    "tagsize": 34,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 130,
+        "delta": 5
+    },
+    "wordsize": 64,
+    "limbs": [
+        44,
+        44,
+        42
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 1,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 3,
+        "options": {
+            "byte": "0x0",
+            "mask": [
+                "0xffffffffffffffff",
+                "0xffffffffffffffff",
+                "0xffffffffffffffff"
+            ],
+            "encodeLSB": false
+        }
+    },
+    "field_transform": {
+        "id": 1
+    },
+    "polynomial": {
+        "name": "classical_Horner_PK_1B_Delay_a_2C",
+        "parameters": [],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+},
+{
+    "name": "cpoly1223",
+    "ref": false,
+    "keysize": 30,
+    "blocksize": 15,
+    "tagsize": 32,
+    "field": {
+        "field_type": "crandallprime",
+        "pi": 122,
+        "delta": 3
+    },
+    "wordsize": 64,
+    "limbs": [
+        61,
+        61
+    ],
+    "multiplication": {
+        "method": "schoolbook",
+        "option": "precompute"
+    },
+    "key_transform": {
+        "id": 1,
+        "options": null
+    },
+    "msg_transform": {
+        "id": 3,
+        "options": {
+            "byte": "0x1",
+            "mask": [
+                "0xffffffffffffffff",
+                "0xffffffffffffffff"
+            ],
+            "encodeLSB": false
+        }
+    },
+    "field_transform": {
+        "id": 1
+    },
+    "polynomial": {
+        "name": "classical_Horner_PK_1B_Delay_a_2C",
+        "parameters": [],
+        "inner_polynomial": null
+    },
+    "keygenerator": {
+        "required": false,
+        "number_of_bytes": null
+    }
+}]
