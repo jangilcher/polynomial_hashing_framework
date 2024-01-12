@@ -62,7 +62,7 @@ dkms.conf
 **/plots
 src/field_arithmetic/*.h
 **/*_results.csv
-bench/
+./bench/
 **/hacl-star-*
 **/hacl_include
 lib
