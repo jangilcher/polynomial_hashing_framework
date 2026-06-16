@@ -1,6 +1,7 @@
 # MIT License
 #
 # Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+#               2025 Jan Gilcher, Jérôme Govinden
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -165,7 +166,7 @@ class TestArith(unittest.TestCase):
                 res_arr = [0] * len(arr1)
                 res = (ctypes.c_uint64 * len(res_arr))(*res_arr)
                 ref = (a_poly * b_poly) % self.poly
-                self.lib.mul_test_test(
+                self.lib.mul_test(
                     ctypes.pointer(res), ctypes.pointer(arr1), ctypes.pointer(arr2)
                 )
                 self.assertEqual(self.array_to_int(res), poly_to_int(ref))
@@ -183,7 +184,7 @@ class TestArith(unittest.TestCase):
                 for a, b in zip(arr1, arr2):
                     ref_arr.append(a ^ b)
                 ref = (ctypes.c_uint64 * len(ref_arr))(*ref_arr)
-                self.lib.add_test_test(
+                self.lib.add_test(
                     ctypes.pointer(res), ctypes.pointer(arr1), ctypes.pointer(arr2)
                 )
                 for i, j in zip(res, ref):
@@ -198,7 +199,7 @@ class TestArith(unittest.TestCase):
                 res_arr = [0] * len(arr1)
                 res = (ctypes.c_uint64 * len(res_arr))(*res_arr)
                 ref = (a_poly * a_poly) % self.poly
-                self.lib.sqr_test_test(ctypes.pointer(res), ctypes.pointer(arr1))
+                self.lib.sqr_test(ctypes.pointer(res), ctypes.pointer(arr1))
                 self.assertEqual(self.array_to_int(res), poly_to_int(ref))
 
     def test_mul_no_carry(self):

@@ -1,0 +1,127 @@
+{
+    "name": "Hash2L over BF256 and SB12",
+    "configurations": [
+
+        {
+            "skip": false,
+            "name": "1Mul Delay",
+            "ref": false,
+            "keysize": 32,
+            "blocksize": 32,
+            "tagsize": 32,
+            "field": {
+                "field_type": "binary",
+                "size": 256
+            },
+            "wordsize": 64,
+            "limbs": [64, 64, 64, 64],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 1,
+                "options": null
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "simple_key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 1,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "BRW_NB_Delay",
+                        "parameters": [0],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "BRW"
+                        }
+                    },
+                    "superblocksize": 12,
+                    "superkeysize": 0
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "2Mul Delay",
+            "ref": false,
+            "keysize": 32,
+            "blocksize": 32,
+            "tagsize": 32,
+            "field": {
+                "field_type": "binary",
+                "size": 256
+            },
+            "wordsize": 64,
+            "limbs": [64, 64, 64, 64],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 1,
+                "options": null
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "simple_key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 1,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "BRW_NB_Delay",
+                        "parameters": [1],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "BRW"
+                        }
+                    },
+                    "superblocksize": 12,
+                    "superkeysize": 0
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        }
+    ]
+}

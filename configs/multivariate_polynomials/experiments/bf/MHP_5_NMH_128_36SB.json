@@ -1,0 +1,371 @@
+{
+    "name": "5-MHP with NMH over BF128 and SB36",
+    "configurations": [
+
+        {
+            "skip": false,
+            "name": "1B Delay",
+            "ref": false,
+            "keysize": 16,
+            "blocksize": 16,
+            "tagsize": 16,
+            "field": {
+                "field_type": "binary",
+                "size": 128
+            },
+            "wordsize": 64,
+            "limbs": [64, 64],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 1,
+                "options": null
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 5,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [1, 1, 0, 1],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 36,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "2B Delay",
+            "ref": false,
+            "keysize": 16,
+            "blocksize": 16,
+            "tagsize": 16,
+            "field": {
+                "field_type": "binary",
+                "size": 128
+            },
+            "wordsize": 64,
+            "limbs": [64, 64],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 1,
+                "options": null
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 5,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [2, 1, 0, 1],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 36,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "3B Delay",
+            "ref": false,
+            "keysize": 16,
+            "blocksize": 16,
+            "tagsize": 16,
+            "field": {
+                "field_type": "binary",
+                "size": 128
+            },
+            "wordsize": 64,
+            "limbs": [64, 64],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 1,
+                "options": null
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 5,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [3, 1, 0, 1],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 36,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "4B Delay",
+            "ref": false,
+            "keysize": 16,
+            "blocksize": 16,
+            "tagsize": 16,
+            "field": {
+                "field_type": "binary",
+                "size": 128
+            },
+            "wordsize": 64,
+            "limbs": [64, 64],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 1,
+                "options": null
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 5,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [4, 1, 0, 1],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 36,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "6B Delay",
+            "ref": false,
+            "keysize": 16,
+            "blocksize": 16,
+            "tagsize": 16,
+            "field": {
+                "field_type": "binary",
+                "size": 128
+            },
+            "wordsize": 64,
+            "limbs": [64, 64],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 1,
+                "options": null
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 5,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [6, 1, 0, 1],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 36,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "8B Delay",
+            "ref": false,
+            "keysize": 16,
+            "blocksize": 16,
+            "tagsize": 16,
+            "field": {
+                "field_type": "binary",
+                "size": 128
+            },
+            "wordsize": 64,
+            "limbs": [64, 64],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 1,
+                "options": null
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 5,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [8, 1, 0, 1],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 36,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        }
+    ]
+}

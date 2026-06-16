@@ -25,8 +25,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void init_hash(void) {}
+
 void hash(unsigned char *out, const unsigned char *in, unsigned long long inlen,
-          const unsigned char *key) {
+          unsigned char *key, const unsigned long long keylen) {
     Hacl_Poly1305_32_poly1305_mac(out, inlen, in, key);
 }
 

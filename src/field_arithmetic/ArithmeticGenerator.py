@@ -1,6 +1,7 @@
 # MIT License
 #
 # Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+#               2025 Jan Gilcher, Jérôme Govinden
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -35,14 +36,18 @@ class ArithmeticGenerator(ABC):
         encodingMSB: int = 0,
         lowerEncode: bool = False,
         blocksize: int = 16,
+        keysize: int = 16,
         lastOnlyEnc: bool = False,
         encodingMask: Optional[List[int]] = None,
         file=sys.stdout,
-        explicitEncoding=True,
+        explicitEncoding: bool = True,
+        explicitKeyTransform: bool = True,
+        keyClamp: Optional[int] = None,
     ) -> None:
         self.limbbits: List[int] = limbbits
         self.numlimbs: int = num_limbs
         self.wordsize: int = wordsize
+        self.wordbytes = wordsize // 8
         self.file: TextIO = file
         self.tabdepth: int = tabdepth
         self.blocksize: int = blocksize
@@ -61,7 +66,13 @@ class ArithmeticGenerator(ABC):
             self.encodingMask: List[int] = encodingMask * num_limbs
         else:
             self.encodingMask = encodingMask
-        self.explicitEncoding = explicitEncoding
+        self.explicitEncoding: bool = explicitEncoding
+        self.explicitKeyTransform: bool = explicitKeyTransform
+        self.keysize: int = keysize
+        if keyClamp is None:
+            self.keyClamp: int = 2 ** (self.keysize * 8) - 1
+        else:
+            self.keyClamp = keyClamp
 
     def _declare_var(self, typ: str, name: str, val=None) -> None:
         if val is None:
@@ -70,19 +81,32 @@ class ArithmeticGenerator(ABC):
             print(f'{" "*self.tabdepth}{typ} {name} = {val};', file=self.file)
 
     def _function_header(
-        self, typ: str, name: str, args: List[Tuple[str, str]], inline=True
+        self,
+        typ: str,
+        name: str,
+        args: List[Tuple[str, str]],
+        inline=True,
+        nocheck=False,
     ) -> None:
         self.curr_fun = name
-        self.funs.append(name)
+        if not nocheck:
+            self.funs.append(name)
         print(
             f'{" "*self.tabdepth}{"static inline __attribute__((always_inline)) " if inline else ""}'
             + f"{typ} {name}(",
+            end="",
             file=self.file,
         )
-        for t, n in args[0:-1]:
-            print(f'{" "*(self.tabdepth+4)}{t} {n},', file=self.file)
+        if len(args) > 0:
+            print(file=self.file)
+            for t, n in args[0:-1]:
+                print(f'{" "*(self.tabdepth+4)}{t} {n},', file=self.file)
 
-        print(f'{" "*(self.tabdepth+4)}{args[-1][0]} {args[-1][1]})', file=self.file)
+            print(
+                f'{" "*(self.tabdepth+4)}{args[-1][0]} {args[-1][1]})', file=self.file
+            )
+        else:
+            print(f"void)", file=self.file)
 
     def _coment(self, comment: str = "") -> None:
         print(f'{" "*(self.tabdepth)}//{comment}', file=self.file)
@@ -126,7 +150,26 @@ class ArithmeticGenerator(ABC):
             return f"({a} >> {shift_amount})"
         return f"({a})"
 
-    def _SHR(self, out, inp, shift, wordsize: Union[int, str]) -> None:
+    def _SHR(
+        self,
+        out,
+        inp,
+        shift,
+        wordsize: Union[int, str],
+        nocheck=False,
+        OFLAG="OFLAG",
+    ) -> None:
+        if not (self.nocheck or nocheck):
+            print(
+                f'{" "*self.tabdepth}{{ '
+                + f"uint{wordsize}_t overflow_check_result; "
+                + f"if(__builtin_add_overflow({self._SHR_exp(inp, shift)},"
+                + f"0, &overflow_check_result))"
+                + '{printf("Integer overflow in %s:%d\\n", __FILE__, __LINE__);'
+                + ("" if OFLAG is None else f"{OFLAG} |= 1;")
+                + "}}",
+                file=self.file,
+            )
         print(
             f'{" "*self.tabdepth}{out} = (uint{wordsize}_t) {self._SHR_exp(inp, shift)};',
             file=self.file,
@@ -150,6 +193,14 @@ class ArithmeticGenerator(ABC):
     def _CALL(self, f: str, args: List[str]) -> None:
         print(f'{" "*self.tabdepth}{f}({", ".join(args)});', file=self.file)
 
+    def _START_BLOCK(self) -> None:
+        print(f'{" "*self.tabdepth}{{', file=self.file)
+        self.tabdepth += 4
+
+    def _END_BLOCK(self) -> None:
+        self.tabdepth -= 4
+        print(f'{" "*self.tabdepth}}}', file=self.file)
+
     def _IF(self, c) -> None:
         print(f'{" "*self.tabdepth}if ({c}) {{', file=self.file)
         self.tabdepth += 4
@@ -160,6 +211,10 @@ class ArithmeticGenerator(ABC):
     def _ENDIF(self) -> None:
         self.tabdepth -= 4
         print(f'{" "*self.tabdepth}}}', file=self.file)
+
+    @abstractmethod
+    def field_elem_get_one(self) -> None:
+        pass
 
     @abstractmethod
     def define_constants(self) -> None:
@@ -229,6 +284,20 @@ class ArithmeticGenerator(ABC):
     def unpack_key(self) -> None:
         pass
 
+    def unpack_and_encode_key(self) -> None:
+        self._function_header(
+            "int",
+            "unpack_and_encode_key",
+            [(f"{self.field_elem_t}*", "res"), (f"const {self.int_t}*", "a")],
+        )
+        self._startBody()
+        self._declare_var("uint8_t", "transkeybuff[BUFFSIZE]", "{0}")
+        self._CALL(
+            "transform_key", ["transkeybuff", "BUFFSIZE", "(uint8_t*) a", "KEYSIZE"]
+        )
+        self._CALL("unpack_field_elem", ["res", "(baseint_t *) transkeybuff"])
+        self._endBody()
+
     @abstractmethod
     def unpack_field_elem(self) -> None:
         pass
@@ -237,7 +306,7 @@ class ArithmeticGenerator(ABC):
         self._function_header(
             "int",
             "unpack_and_encode_field_elem",
-            [(f"{self.field_elem_t}*", "res"), (f"{self.int_t}*", "a")],
+            [(f"{self.field_elem_t}*", "res"), (f"const {self.int_t}*", "a")],
         )
         self._startBody()
         self._declare_var("uint8_t", "buff[BUFFSIZE]", "{0}")
@@ -251,7 +320,7 @@ class ArithmeticGenerator(ABC):
             "unpack_and_encode_last_field_elem",
             [
                 (f"{self.field_elem_t}*", "res"),
-                (f"{self.int_t}*", "a"),
+                (f"const {self.int_t}*", "a"),
                 ("size_t", "a_size"),
             ],
         )
@@ -260,6 +329,17 @@ class ArithmeticGenerator(ABC):
         self._CALL("transform_msg", ["buff", "BUFFSIZE", "(uint8_t*) a", "a_size"])
         self._CALL("unpack_field_elem", ["res", "(baseint_t *) buff"])
         self._endBody()
+
+    def unpack_and_encode_last_field_elem_macro(self) -> None:
+        print(
+            "#define UNPACK_AND_ENCODE_LAST_FIELD_ELEM(out,in,inlen)\\\n"
+            + "if (last) {\\\n"
+            + "   unpack_and_encode_last_field_elem(out, in, inlen);\\\n"
+            + "} else {\\\n"
+            + "    unpack_and_encode_field_elem(out, in);\\\n"
+            + "}\\\n",
+            file=self.file,
+        )
 
     def includes(self) -> None:
         print("#include <inttypes.h>", file=self.file)
@@ -307,9 +387,15 @@ class ArithmeticGenerator(ABC):
         print(file=self.file)
         self.unpack_key()
         print(file=self.file)
+        self.unpack_and_encode_key()
+        print(file=self.file)
         self.unpack_and_encode_field_elem()
         print(file=self.file)
         self.unpack_and_encode_last_field_elem()
+        print(file=self.file)
+        self.unpack_and_encode_last_field_elem_macro()
+        print(file=self.file)
+        self.field_elem_get_one()
 
     def footer(self) -> None:
         return

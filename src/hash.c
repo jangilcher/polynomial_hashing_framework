@@ -1,6 +1,7 @@
 // MIT License
 //
 // Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+//               2025 Jan Gilcher, Jérôme Govinden
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,12 +29,14 @@
 #include <ctgrind.h>
 #endif
 
+void init_hash(void) {}
+
 void hash(unsigned char *out, const unsigned char *in, unsigned long long inlen,
-          const unsigned char *key) {
+          unsigned char *key, unsigned long long keylen) {
 #ifdef USE_CTGRIND
     ct_poison(key, sizeof(KEYSIZE));
 #endif
-    poly_eval(out, in, inlen, key);
+    poly_eval(out, in, inlen, key, keylen);
 }
 
 int hash_verify(unsigned char *out, const unsigned char *in,

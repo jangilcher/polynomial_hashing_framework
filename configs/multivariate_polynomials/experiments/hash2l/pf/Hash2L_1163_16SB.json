@@ -1,0 +1,141 @@
+{
+    "name": "Hash2L over PF1163 and SB16",
+    "configurations": [
+
+        {
+            "skip": false,
+            "name": "1Mul Delay",
+            "ref": false,
+            "keysize": 14,
+            "blocksize": 14,
+            "tagsize": 15,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 116,
+                "delta": 3
+            },
+            "wordsize": 64,
+            "limbs": [58, 58],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "simple_key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 1,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "BRW_NB_Delay",
+                        "parameters": [0],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "BRW"
+                        }
+                    },
+                    "superblocksize": 16,
+                    "superkeysize": 0
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "2Mul Delay",
+            "ref": false,
+            "keysize": 14,
+            "blocksize": 14,
+            "tagsize": 15,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 116,
+                "delta": 3
+            },
+            "wordsize": 64,
+            "limbs": [58, 58],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "simple_key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 1,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "BRW_NB_Delay",
+                        "parameters": [1],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "BRW"
+                        }
+                    },
+                    "superblocksize": 16,
+                    "superkeysize": 0
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        }
+    ]
+}

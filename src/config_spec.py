@@ -1,6 +1,7 @@
 # MIT License
 #
 # Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+#               2025 Jan Gilcher, Jérôme Govinden
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -55,10 +56,41 @@ class FieldTransformSpec(BaseModel):
     id: int
 
 
+HashTransforms = Literal[
+    "additive_length_encoding",
+    "multiplicative_length_encoding",
+    "key_reuse_length_encoding",
+    "simple_key_reuse_length_encoding",
+]
+
+
+class HashTransformSpec(BaseModel):
+    name: Optional[HashTransforms] = None
+
+
+class PolynomialTestSpec(BaseModel):
+    name: str
+
+
 class PolynomialSpec(BaseModel):
     name: str
+    num_keys: int = 1
     parameters: list[int]
-    inner_polynomial: Optional["PolynomialSpec"] = None
+    inner_polynomial: Optional["InnerPolynomialSpec"] = None
+    test: Optional[PolynomialTestSpec] = None
+
+
+PolynomialOptions = Literal["inline_inner"]
+
+
+class OuterPolynomialSpec(PolynomialSpec):
+    options: Optional[list[PolynomialOptions]] = None
+
+
+class InnerPolynomialSpec(BaseModel):
+    polynomial: PolynomialSpec
+    superblocksize: int
+    superkeysize: int
 
 
 class CrandallPrimeFieldSpec(BaseModel):
@@ -84,7 +116,7 @@ ArchSpec = Literal["x86"]
 Wordsize = Literal[32, 64]
 MultiplicationMethod = Literal["schoolbook", "karatsuba"]
 MultiplicationOptions = Literal[
-    "precompute", "doublecarry", "doublecarryover", "doublecarrytemp"
+    "precompute", "doublecarry", "doublecarryover", "doublecarrytemp", "cmulreduction"
 ]
 
 
@@ -112,7 +144,8 @@ class NewHashConfig(BaseModel):
     key_transform: KeyTransformSpec
     msg_transform: MsgTransformSpec
     field_transform: FieldTransformSpec
-    polynomial: PolynomialSpec
+    hash_transform: Optional[HashTransformSpec] = HashTransformSpec()
+    polynomial: OuterPolynomialSpec
     keygenerator: KeyGeneratorSpec
     skip: Optional[bool] = False
     description: Optional[str] = ""
@@ -121,8 +154,12 @@ class NewHashConfig(BaseModel):
 class ReferenceConfig(BaseModel):
     name: str
     ref: Literal[True]
-    lib: Literal["openssl", "sodium", "haclstar"]
-    mac: Literal["poly1305", "gmac"]
+    lib: Literal[
+        "openssl", "sodium", "haclstar", "haberdashery", "hash2l", "d2lHash", "polyhash"
+    ]
+    mac: Literal[
+        "poly1305", "gmac", "hash_128", "hash_256", "d2lHash1271", "d2lHash1305"
+    ]
     implementation: Optional[str]
     skip: Optional[bool] = False
     description: Optional[str] = ""

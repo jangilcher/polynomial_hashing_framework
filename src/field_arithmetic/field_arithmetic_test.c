@@ -1,6 +1,7 @@
 // MIT License
 //
 // Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+//               2025 Jan Gilcher, Jérôme Govinden
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -76,6 +77,10 @@ void pack_field_elem_test(baseint_t *res, field_elem_t *a) {
 }
 
 void unpack_key_test(field_elem_t *res, baseint_t *a) { unpack_key(res, a); }
+
+void unpack_and_encode_key_test(field_elem_t *res, baseint_t *a) {
+    unpack_and_encode_key(res, a);
+}
 
 void unpack_field_elem_test(field_elem_t *res, baseint_t *a) {
     unpack_field_elem(res, a);

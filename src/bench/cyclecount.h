@@ -54,12 +54,13 @@ static inline uint64_t rdtscp_stop() {
 
 #elif defined(__aarch64__)
 
-#define rdtscp_start get_cycles
-#define rdtscp_stop get_cycles
+#define rdtscp_start cpucycles_armv8
+#define rdtscp_stop cpucycles_armv8
 
 static inline uint64_t get_cycles() {
     register uint64_t ret;
-    __asm__ __volatile__("isb; mrs %0, cntvct_el0" : "=r"(ret));
+    // __asm__ __volatile__("isb; mrs %0, cntvct_el0" : "=r"(ret));
+    __asm__ __volatile__("isb; mrs %0, PMCCNTR_EL0" : "=r"(ret));
     return ret;
 }
 

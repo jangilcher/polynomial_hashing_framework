@@ -27,8 +27,10 @@
 #include <stdlib.h>
 #define IVSIZE 12
 
+void init_hash(void) {}
+
 void hash(unsigned char *out, const unsigned char *in, unsigned long long inlen,
-          const unsigned char *key) {
+          unsigned char *key, const unsigned long long keylen) {
     EVP_MAC *mac = EVP_MAC_fetch(NULL, "GMAC", "provider=default");
     EVP_MAC_CTX *ctx = EVP_MAC_CTX_new(mac);
 

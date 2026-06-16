@@ -1,0 +1,69 @@
+{
+    "name": "Comparison d2LHash over 1305",
+    "configurations": [
+        {
+            "skip": false,
+            "name": "d2LHash1305 d2 g4",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1305",
+            "implementation": "d2_g4"
+        },
+        {
+            "skip": false,
+            "name": "d2LHash1305 d2 g8",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1305",
+            "implementation": "d2_g8"
+        },
+        {
+            "skip": false,
+            "name": "d2LHash1305 d3 g4",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1305",
+            "implementation": "d3_g4"
+        },
+        {
+            "skip": false,
+            "name": "d2LHash1305 d3 g8",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1305",
+            "implementation": "d3_g8"
+        },
+        {
+            "skip": false,
+            "name": "d2LHash1305 d4 g4",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1305",
+            "implementation": "d4_g4"
+        },
+        {
+            "skip": false,
+            "name": "d2LHash1305 d4 g8",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1305",
+            "implementation": "d4_g8"
+        },
+        {
+            "skip": false,
+            "name": "d2LHash1305 d5 g4",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1305",
+            "implementation": "d5_g4"
+        },
+        {
+            "skip": false,
+            "name": "d2LHash1305 d5 g8",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1305",
+            "implementation": "d5_g8"
+        }
+    ]
+}

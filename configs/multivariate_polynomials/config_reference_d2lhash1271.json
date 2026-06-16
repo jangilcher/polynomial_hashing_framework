@@ -1,0 +1,69 @@
+{
+    "name": "Comparison of d2lHash over 1271",
+    "configurations": [
+        {
+            "skip": false,
+            "name": "d2LHash1271 d2 g4",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1271",
+            "implementation": "d2_g4"
+        },
+        {
+            "skip": false,
+            "name": "d2LHash1271 d2 g8",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1271",
+            "implementation": "d2_g8"
+        },
+        {
+            "skip": false,
+            "name": "d2LHash1271 d3 g4",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1271",
+            "implementation": "d3_g4"
+        },
+        {
+            "skip": false,
+            "name": "d2LHash1271 d3 g8",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1271",
+            "implementation": "d3_g8"
+        },
+        {
+            "skip": false,
+            "name": "d2LHash1271 d4 g4",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1271",
+            "implementation": "d4_g4"
+        },
+        {
+            "skip": false,
+            "name": "d2LHash1271 d4 g8",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1271",
+            "implementation": "d4_g8"
+        },
+        {
+            "skip": false,
+            "name": "d2LHash1271 d5 g4",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1271",
+            "implementation": "d5_g4"
+        },
+        {
+            "skip": false,
+            "name": "d2LHash1271 d5 g8",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1271",
+            "implementation": "d5_g8"
+        }
+    ]
+}

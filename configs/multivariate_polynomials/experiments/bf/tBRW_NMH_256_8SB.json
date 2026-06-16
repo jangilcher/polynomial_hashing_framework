@@ -1,0 +1,365 @@
+{
+    "name": "tBRW with NMH over BF256 and SB8",
+    "configurations": [
+
+        {
+            "skip": false,
+            "name": "1B Delay",
+            "ref": false,
+            "keysize": 32,
+            "blocksize": 32,
+            "tagsize": 32,
+            "field": {
+                "field_type": "binary",
+                "size": 256
+            },
+            "wordsize": 64,
+            "limbs": [64, 64, 64, 64],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 1,
+                "options": null
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tBRW",
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [1, 1, 0, 1],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 8,
+                    "superkeysize": 8
+                },
+                "test": {
+                    "name": "tBRW"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "2B Delay",
+            "ref": false,
+            "keysize": 32,
+            "blocksize": 32,
+            "tagsize": 32,
+            "field": {
+                "field_type": "binary",
+                "size": 256
+            },
+            "wordsize": 64,
+            "limbs": [64, 64, 64, 64],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 1,
+                "options": null
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tBRW",
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [2, 1, 0, 1],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 8,
+                    "superkeysize": 8
+                },
+                "test": {
+                    "name": "tBRW"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "3B Delay",
+            "ref": false,
+            "keysize": 32,
+            "blocksize": 32,
+            "tagsize": 32,
+            "field": {
+                "field_type": "binary",
+                "size": 256
+            },
+            "wordsize": 64,
+            "limbs": [64, 64, 64, 64],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 1,
+                "options": null
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tBRW",
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [3, 1, 0, 1],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 8,
+                    "superkeysize": 8
+                },
+                "test": {
+                    "name": "tBRW"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "4B Delay",
+            "ref": false,
+            "keysize": 32,
+            "blocksize": 32,
+            "tagsize": 32,
+            "field": {
+                "field_type": "binary",
+                "size": 256
+            },
+            "wordsize": 64,
+            "limbs": [64, 64, 64, 64],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 1,
+                "options": null
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tBRW",
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [4, 1, 0, 1],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 8,
+                    "superkeysize": 8
+                },
+                "test": {
+                    "name": "tBRW"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "6B Delay",
+            "ref": false,
+            "keysize": 32,
+            "blocksize": 32,
+            "tagsize": 32,
+            "field": {
+                "field_type": "binary",
+                "size": 256
+            },
+            "wordsize": 64,
+            "limbs": [64, 64, 64, 64],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 1,
+                "options": null
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tBRW",
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [6, 1, 0, 1],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 8,
+                    "superkeysize": 8
+                },
+                "test": {
+                    "name": "tBRW"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "8B Delay",
+            "ref": false,
+            "keysize": 32,
+            "blocksize": 32,
+            "tagsize": 32,
+            "field": {
+                "field_type": "binary",
+                "size": 256
+            },
+            "wordsize": 64,
+            "limbs": [64, 64, 64, 64],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 1,
+                "options": null
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tBRW",
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [8, 1, 0, 1],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 8,
+                    "superkeysize": 8
+                },
+                "test": {
+                    "name": "tBRW"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        }
+    ]
+}

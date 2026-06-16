@@ -23,8 +23,11 @@
 #include "hash.h"
 #include <sodium.h>
 #include <stdlib.h>
+
+void init_hash(void) {}
+
 void hash(unsigned char *out, const unsigned char *in, unsigned long long inlen,
-          const unsigned char *key) {
+          unsigned char *key, const unsigned long long keylen) {
     crypto_onetimeauth(out, in, inlen, key);
 }
 

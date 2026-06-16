@@ -3,6 +3,7 @@
 # MIT License
 #
 # Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+#               2025 Jan Gilcher, Jérôme Govinden
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,11 +23,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import getopt
 import os
 import sys
 import subprocess
 import unittest
+import textwrap
+from datetime import datetime
 from warnings import warn
 from math import ceil
 from pathlib import Path
@@ -38,6 +40,7 @@ from tests.test_binary_field_arithmetic import TestArith as BFTestArith
 from tests.test_prime_field_arithmetic import TestArith as PFTestArith
 from tests.transform import MessageTransform
 import src.plot_results as pltrs
+from src.length_encoding import length_encoding_settings
 from src.settings import Settings
 from src.field_arithmetic.bf_polynomial_coeffs import polynomials
 from src.reference_params import reference_params
@@ -57,7 +60,9 @@ from src.config_parser import LegacyParser, ConfigParser, ParsingError
 from src.config_spec import (
     ConfigurationFile,
     FieldSpec,
+    InnerPolynomialSpec,
     MultiplicationOptions,
+    PolynomialSpec,
     is_PrimeFieldSpec,
     is_ReferenceConfig,
     is_NewHashConfig,
@@ -67,39 +72,10 @@ from src.config_spec import (
 )
 from src.util import integer_to_hex
 
-opts: list[tuple[str, str]]
 config_files: list[str]
-opts, config_files = getopt.getopt(
-    sys.argv[1:],
-    "",
-    [
-        "no_build",
-        "no_bench",
-        "no_plot",
-        "no_test",
-        "verbose",
-        "tune",
-        "debug",
-        "plot_compare_only",
-        "no_plot_titles",
-        "show_plots",
-        "check_overflow",
-        "no_test_arith",
-        "convert_only",
-        "convert",
-        "latex",
-        "full_logs",
-        "ctgrind",
-        "ctgrind_bin=",
-        "iterations=",
-        "max_messagesize=",
-        "stepsize=",
-        "include=",
-        "numtests=",
-    ],
-)
 
-settings: Settings = Settings.from_options(opts)
+settings: Settings
+settings, config_files = Settings.get_Settings()
 
 
 def green(s: str) -> str:
@@ -126,7 +102,8 @@ finally:
 
 if len(config_files) == 0:
     config_files.append("config")
-benchdir = "bench/"
+timestamp = datetime.now()
+DATE_FORMAT = "%Y%m%d%H%M%S"
 binname: str = ""
 arithmetic_test_results: dict[str, tuple[unittest.TestResult, str]] = {}
 hash_test_results: dict[str, tuple[unittest.TestResult, str]] = {}
@@ -153,6 +130,15 @@ if settings.convert:
 
 if settings.convert_only:
     sys.exit(0)
+
+
+bench_dir_path: Path = settings.bench_dir
+plot_dir_path: Path = settings.plot_dir
+if settings.bench:
+    bench_dir_path = bench_dir_path / Path(timestamp.strftime(DATE_FORMAT))
+if settings.plot:
+    plot_dir_path = plot_dir_path / Path(timestamp.strftime(DATE_FORMAT))
+benchdir = f"{bench_dir_path}/"
 
 os.system("make clean")
 for config, file in configs:
@@ -193,6 +179,7 @@ for config, file in configs:
             macro_defs.append(f'-DBLOCKSIZE={reference_params[key]["blocksize"]}')
             macro_defs.append(f'-DKEYSIZE={reference_params[key]["keysize"]}')
             macro_defs.append(f'-DOUTPUTSIZE={reference_params[key]["outputsize"]}')
+            macro_defs.append(f"-DNUM_KEYS=1")
             binname = key
             make_cmd.append(f'MDEFS="{" ".join(macro_defs)}"')
             make_cmd.append(f"BINNAME={binname}")
@@ -201,6 +188,7 @@ for config, file in configs:
         elif is_NewHashConfig(current_config):
             binname = f"{file.name}_{config_number}"
             if current_config.keygenerator.required:
+                macro_defs.append("-DKEYGENERATOR=1")
                 if current_config.keygenerator.number_of_bytes is not None:
                     macro_defs.append(
                         f"-DMAX_RAND_BYTES={current_config.keygenerator.number_of_bytes}"
@@ -218,15 +206,20 @@ for config, file in configs:
             key_enc_id: int = current_config.key_transform.id
             key_encoding: str
             key_include: str
-            key_clamp_mask: int = 2 ** (current_config.keysize * 8) - 1
-            if current_config.key_transform.options is not None:
-                key_clamp_mask = current_config.key_transform.options.mask
             key_proto_transform: Callable[..., KeyTransform]
             key_encoding, key_include, key_proto_transform = key_to_field_encoding[
                 key_enc_id
             ]
+            key_clamp_mask: int = 2 ** (current_config.keysize * 8) - 1
+            if (
+                key_proto_transform != identity
+                and current_config.key_transform.options is not None
+            ):
+                key_clamp_mask = current_config.key_transform.options.mask
+            explicitKeyTransform: bool = True
             if key_enc_id in implicit_bf_encodings:
                 key_transform: KeyTransform = key_proto_transform(key_clamp_mask)
+                explicitKeyTransform = False
             else:
                 key_transform = key_proto_transform()
             make_cmd.append(f'KEYINCLUDE="{key_include}" KEYTRANSFORM={key_encoding}')
@@ -281,26 +274,61 @@ for config, file in configs:
                 f'FIELDELEMINCLUDE="{fb_include}" FIELDELEMTRANSFORM={field_elem_to_bits}'
             )
 
+            if current_config.hash_transform is not None:
+                hash_transform = current_config.hash_transform.name
+                if hash_transform is None:
+                    macro_defs.append("-DEXPLICIT_LENGTH_ENCODE=0")
+                    macro_defs.append(
+                        f"-DLE_EXTRA_KEY={length_encoding_settings['none']['LE_EXTRA_KEY']}ULL"
+                    )
+                    macro_defs.append(
+                        f"-DLE_MIN_KEY={length_encoding_settings['none']['LE_MIN_KEY']}"
+                    )
+                else:
+                    macro_defs.append("-DEXPLICIT_LENGTH_ENCODE=1")
+                    macro_defs.append(f"-DLENGTH_ENCODING={hash_transform}")
+                    macro_defs.append(
+                        f"-DLE_EXTRA_KEY={length_encoding_settings[hash_transform]['LE_EXTRA_KEY']}ULL"
+                    )
+                    macro_defs.append(
+                        f"-DLE_MIN_KEY={length_encoding_settings[hash_transform]['LE_MIN_KEY']}"
+                    )
             outerpoly: str = current_config.polynomial.name
             make_cmd.append(f'OUTERPOLY={outerpoly} OUTERPOLY_H="{outerpoly}.h"')
+            numKeys = current_config.polynomial.num_keys
+            macro_defs.append(f"-DNUM_KEYS={numKeys}")
+            if current_config.polynomial.options is not None:
+                if "inline_inner" in current_config.polynomial.options:
+                    macro_defs.append("-DALWAYS_INLINE_INNER")
             for i, p in enumerate(current_config.polynomial.parameters):
                 macro_defs.append(f"-DOUTER_PARAM{i}={p}")
             if current_config.polynomial.inner_polynomial is not None:
                 innerpoly: Optional[
-                    str
-                ] = current_config.polynomial.inner_polynomial.name
-                make_cmd.append(f'INNERPOLY={innerpoly} INNERPOLY_H="{innerpoly}.h"')
-                for i, p in enumerate(
-                    current_config.polynomial.inner_polynomial.parameters
-                ):
+                    InnerPolynomialSpec
+                ] = current_config.polynomial.inner_polynomial
+                superblocksize: Optional[int] = (
+                    innerpoly.superblocksize * current_config.blocksize
+                )
+                superkeysize: Optional[int] = (
+                    innerpoly.superkeysize * current_config.keysize
+                )
+                innerpoly_name: Optional[str] = innerpoly.polynomial.name
+                make_cmd.append(
+                    f'INNERPOLY={innerpoly_name}_inner INNERPOLY_H="{innerpoly_name}_inner.h"'
+                )
+                macro_defs.append(f"-DNB_SUPERBLOCKS={innerpoly.superblocksize}")
+                macro_defs.append(f"-DNB_SUPERKEYS={innerpoly.superkeysize}")
+                macro_defs.append(f"-DSUPERBLOCKSIZE={superblocksize}")
+                macro_defs.append(f"-DSUPERKEYSIZE={superkeysize}")
+                for i, p in enumerate(innerpoly.polynomial.parameters):
                     macro_defs.append(f"-DINNER_PARAM{i}={p}")
-                if (
-                    current_config.polynomial.inner_polynomial.inner_polynomial
-                    is not None
-                ):
+                if innerpoly.polynomial.inner_polynomial is not None:
                     raise NotImplementedError("Nesting level >= 2 not supported")
             else:
                 innerpoly = None
+                innerpoly_name = None
+                superblocksize = None
+                superkeysize = None
             labels.append(current_config.name)
             field: FieldSpec = current_config.field
             multiplication_options: list[
@@ -336,15 +364,16 @@ for config, file in configs:
                         ):
                             make_cmd.append("PC=_pc")
                             arithGen = PrecomputingCrandallArithmeticGenerator(
-                                pi,
-                                delta,
-                                limbbits,
-                                num_limbs,
-                                wordsize,
-                                buffsize,
+                                pi=pi,
+                                delta=delta,
+                                limbbits=limbbits,
+                                num_limbs=num_limbs,
+                                wordsize=wordsize,
+                                buffsize=buffsize,
                                 file=outfile,
                                 blocksize=current_config.blocksize,
                                 keysize=current_config.keysize,
+                                explicitKeyTransform=explicitKeyTransform,
                                 encodingMSB=encodingMSB,
                                 lowerEncode=lowerEncode,
                                 lastOnlyEnc=lastOnlyEnc,
@@ -356,19 +385,21 @@ for config, file in configs:
                                 in multiplication_options,
                                 doublecarry_temp="doublecarrytemp"
                                 in multiplication_options,
+                                keyClamp=key_clamp_mask,
                             )
                         else:
                             make_cmd.append("PC=")
                             arithGen = CrandallArithmeticGenerator(
-                                pi,
-                                delta,
-                                limbbits,
-                                num_limbs,
-                                wordsize,
-                                buffsize,
+                                pi=pi,
+                                delta=delta,
+                                limbbits=limbbits,
+                                num_limbs=num_limbs,
+                                wordsize=wordsize,
+                                buffsize=buffsize,
                                 file=outfile,
                                 blocksize=current_config.blocksize,
                                 keysize=current_config.keysize,
+                                explicitKeyTransform=explicitKeyTransform,
                                 encodingMSB=encodingMSB,
                                 lowerEncode=lowerEncode,
                                 lastOnlyEnc=lastOnlyEnc,
@@ -380,6 +411,7 @@ for config, file in configs:
                                 in multiplication_options,
                                 doublecarry_temp="doublecarrytemp"
                                 in multiplication_options,
+                                keyClamp=key_clamp_mask,
                             )
                         arithGen.print_fieldmul()
                     make_cmd.append(
@@ -559,7 +591,10 @@ for config, file in configs:
                                 ),
                             ]
                         )
-                        if current_config.multiplication.option == "precompute":
+                        if (
+                            current_config.multiplication.option == "precompute"
+                            or "precompute" in multiplication_options
+                        ):
                             arithmetic_TestSuite.addTests(
                                 [
                                     PFTestArith(
@@ -620,22 +655,48 @@ for config, file in configs:
                                     ),
                                 ]
                             )
-                    if settings.sage:
-                        hash_TestSuite.addTest(
-                            ClassicalPolynomial(
-                                name="test_classical_polynomial",
-                                binname=binname,
-                                blocksize=current_config.blocksize,
-                                keysize=current_config.keysize,
-                                tagsize=current_config.tagsize,
-                                pi=pi,
-                                delta=delta,
-                                transform=message_transform,
-                                key_transform=key_transform,
-                                numtests=settings.numtests,
-                                full_logs=settings.full_logs,
+                    if settings.sage and settings.test_hash:
+                        if current_config.polynomial.test is None:
+                            warn(
+                                yellow(
+                                    "No test polynomial specified. Skipping hash test!"
+                                )
                             )
-                        )
+                        elif (
+                            innerpoly is not None and innerpoly.polynomial.test is None
+                        ):
+                            warn(
+                                yellow(
+                                    "No test polynomial specified for inner polynomial. Skipping hash test!"
+                                )
+                            )
+                        else:
+                            if innerpoly is None:
+                                inner_test_name = None
+                            else:
+                                inner_test_name = innerpoly.polynomial.test.name
+                            test_name = f"test_{current_config.polynomial.test.name}"
+                            hash_TestSuite.addTest(
+                                PfPolynomial(
+                                    name=test_name,
+                                    binname=binname,
+                                    blocksize=current_config.blocksize,
+                                    keysize=current_config.keysize,
+                                    tagsize=current_config.tagsize,
+                                    pi=pi,
+                                    delta=delta,
+                                    transform=message_transform,
+                                    key_transform=key_transform,
+                                    numtests=settings.numtests,
+                                    full_logs=settings.full_logs,
+                                    innerpoly=inner_test_name,
+                                    superblocksize=superblocksize,
+                                    superkeysize=superkeysize,
+                                    debug=settings.debug,
+                                    hash_transform=hash_transform,
+                                    numKeys=numKeys,
+                                )
+                            )
                 elif is_MersennePrimeFieldSpec(field):
                     prime_type: str = "1"
                     pi: int = field.pi
@@ -654,13 +715,14 @@ for config, file in configs:
                         encoding="utf-8",
                     ) as outfile:
                         arithGen = MersenneArithmeticGenerator(
-                            pi,
-                            limbbits,
-                            num_limbs,
-                            wordsize,
-                            buffsize,
+                            pi=pi,
+                            limbbits=limbbits,
+                            num_limbs=num_limbs,
+                            wordsize=wordsize,
+                            buffsize=buffsize,
                             blocksize=current_config.blocksize,
                             keysize=current_config.keysize,
+                            explicitKeyTransform=explicitKeyTransform,
                             file=outfile,
                             encodingMSB=encodingMSB,
                             lowerEncode=lowerEncode,
@@ -672,6 +734,7 @@ for config, file in configs:
                             doublecarryover="doublecarryover" in multiplication_options,
                             doublecarry_temp="doublecarrytemp"
                             in multiplication_options,
+                            keyClamp=key_clamp_mask,
                         )
                         arithGen.print_fieldmul()
                     make_cmd.append(f"PRIMETYPE={prime_type} PI={pi} PRIMENAME={pi}")
@@ -849,21 +912,48 @@ for config, file in configs:
                                 ),
                             ]
                         )
-                    if settings.sage:
-                        hash_TestSuite.addTest(
-                            ClassicalPolynomial(
-                                name="test_classical_polynomial",
-                                binname=binname,
-                                blocksize=current_config.blocksize,
-                                keysize=current_config.keysize,
-                                tagsize=current_config.tagsize,
-                                pi=pi,
-                                delta=1,
-                                transform=message_transform,
-                                key_transform=key_transform,
-                                full_logs=settings.full_logs,
+                    if settings.sage and settings.test_hash:
+                        if current_config.polynomial.test is None:
+                            warn(
+                                yellow(
+                                    "No test polynomial specified. Skipping hash test!"
+                                )
                             )
-                        )
+                        elif (
+                            innerpoly is not None and innerpoly.polynomial.test is None
+                        ):
+                            warn(
+                                yellow(
+                                    "No test polynomial specified for inner polynomial. Skipping hash test!"
+                                )
+                            )
+                        else:
+                            if innerpoly is None:
+                                inner_test_name = None
+                            else:
+                                inner_test_name = innerpoly.polynomial.test.name
+                            test_name = f"test_{current_config.polynomial.test.name}"
+                            hash_TestSuite.addTest(
+                                PfPolynomial(
+                                    name=test_name,
+                                    binname=binname,
+                                    blocksize=current_config.blocksize,
+                                    keysize=current_config.keysize,
+                                    tagsize=current_config.tagsize,
+                                    pi=pi,
+                                    delta=1,
+                                    transform=message_transform,
+                                    key_transform=key_transform,
+                                    full_logs=settings.full_logs,
+                                    innerpoly=inner_test_name,
+                                    superblocksize=superblocksize,
+                                    superkeysize=superkeysize,
+                                    debug=settings.debug,
+                                    stepsize=settings.test_steps,
+                                    hash_transform=hash_transform,
+                                    numKeys=numKeys,
+                                )
+                            )
                 else:
                     sys.exit(-1)
                 make_cmd.append(f"LIMBBITS={'_'.join(map(str, current_config.limbs))}")
@@ -883,6 +973,11 @@ for config, file in configs:
                 if current_config.blocksize * 8 + encodingMSB.bit_length() > field_size:
                     warn(red("Encoding incompatible with chosen field size"))
                     exit(-1)
+                cmulReduction = False
+                if current_config.multiplication.options is not None:
+                    cmulReduction = (
+                        "cmulreduction" in current_config.multiplication.options
+                    )
                 print("generating Field Arithmetic")
                 with open(
                     f"src/field_arithmetic/bf_arithmetic_{field.size}_"
@@ -892,18 +987,21 @@ for config, file in configs:
                     encoding="utf-8",
                 ) as outfile:
                     arithGen = BinaryFieldArithmeticGenerator(
-                        polynomial,
-                        limbbits,
-                        num_limbs,
-                        wordsize,
+                        polynomial=polynomial,
+                        limbbits=limbbits,
+                        num_limbs=num_limbs,
+                        wordsize=wordsize,
                         file=outfile,
                         blocksize=current_config.blocksize,
                         keysize=current_config.keysize,
+                        explicitKeyTransform=explicitKeyTransform,
                         encodingMSB=encodingMSB,
                         lowerEncode=lowerEncode,
                         lastOnlyEnc=lastOnlyEnc,
                         encodingMask=encodingMask,
                         explicitEncoding=explicitEncoding,
+                        cmulReduction=cmulReduction,
+                        keyClamp=key_clamp_mask,
                     )
                     arithGen.print_fieldmul()
                 make_cmd.append("bf_arithmetic")
@@ -997,6 +1095,45 @@ for config, file in configs:
                             ),
                         ]
                     )
+                if settings.sage and settings.test_hash:
+                    if current_config.polynomial.test is None:
+                        warn(
+                            yellow("No test polynomial specified. Skipping hash test!")
+                        )
+                    elif innerpoly is not None and innerpoly.polynomial.test is None:
+                        warn(
+                            yellow(
+                                "No test polynomial specified for inner polynomial. Skipping hash test!"
+                            )
+                        )
+                    else:
+                        if innerpoly is None:
+                            inner_test_name = None
+                        else:
+                            inner_test_name = innerpoly.polynomial.test.name
+                        test_name = f"test_{current_config.polynomial.test.name}"
+                        hash_TestSuite.addTest(
+                            BfPolynomial(
+                                name=test_name,
+                                binname=binname,
+                                blocksize=current_config.blocksize,
+                                keysize=current_config.keysize,
+                                tagsize=current_config.tagsize,
+                                fieldsize=field_size,
+                                polynomial=polynomial,
+                                transform=message_transform,
+                                key_transform=key_transform,
+                                numtests=settings.numtests,
+                                full_logs=settings.full_logs,
+                                innerpoly=inner_test_name,
+                                superblocksize=superblocksize,
+                                superkeysize=superkeysize,
+                                debug=settings.debug,
+                                stepsize=settings.test_steps,
+                                hash_transform=hash_transform,
+                                numKeys=numKeys,
+                            )
+                        )
                 make_cmd.append(f"FIELDSIZE={field_size}")
                 make_cmd.append(f"LIMBBITS={'_'.join(map(str, current_config.limbs))}")
                 make_cmd.append(f"WORDSIZE={current_config.wordsize}")
@@ -1056,29 +1193,41 @@ for config, file in configs:
         if settings.test:
             print("running Tests:")
             results_path = f"results/{file.name}_{config_number}_test_results"
+            test_arith_failure = False
             with open(results_path, "w") as results_file:
                 if settings.test_arith:
-                    print("- Field Arithmetic Tests")
-                    arith_res = unittest.TextTestRunner(
-                        verbosity=2, stream=results_file
-                    ).run(arithmetic_TestSuite)
-                    arithmetic_test_results[f"{file.name}_{config_number}"] = (
-                        arith_res,
-                        current_config.name,
-                    )
+                    if arithmetic_TestSuite.countTestCases() > 0:
+                        print("- Field Arithmetic Tests")
+                        arith_res = unittest.TextTestRunner(
+                            verbosity=2,
+                            stream=results_file,
+                            failfast=settings.fail_fast,
+                        ).run(arithmetic_TestSuite)
+                        arithmetic_test_results[f"{file.name}_{config_number}"] = (
+                            arith_res,
+                            current_config.name,
+                        )
+                        test_arith_failure = not arith_res.wasSuccessful()
+            test_hash_failure = False
             with open(results_path, "a") as results_file:
-                print("- Hash Function Tests")
-                hash_res = unittest.TextTestRunner(
-                    verbosity=2, stream=results_file
-                ).run(hash_TestSuite)
-                hash_test_results[f"{file.name}_{config_number}"] = (
-                    hash_res,
-                    current_config.name,
-                )
-            failure = not (
-                hash_res.wasSuccessful()
-                and ((not settings.test_arith) or arith_res.wasSuccessful())
-            )
+                if settings.test_hash:
+                    if hash_TestSuite.countTestCases() > 0:
+                        print("- Hash Function Tests")
+                        hash_res = unittest.TextTestRunner(
+                            verbosity=2,
+                            stream=results_file,
+                            failfast=settings.fail_fast,
+                        ).run(hash_TestSuite)
+                        hash_test_results[f"{file.name}_{config_number}"] = (
+                            hash_res,
+                            current_config.name,
+                        )
+                        test_hash_failure = not hash_res.wasSuccessful()
+            # failure = not (
+            # ((not settings.test_hash) or hash_res.wasSuccessful())
+            # and ((not setting.test_arith) or arith_res.wasSuccessful())
+            # )
+            failure = test_hash_failure or test_arith_failure
         if failure:
             if settings.bench:
                 print(yellow("Skipping benchmark due to failure during tests or build"))
@@ -1092,16 +1241,30 @@ for config, file in configs:
                     print(yellow("Skipping plot due to failure bench"))
                     linenums.pop()
                     labels.pop()
+            result_filename: str = f"{benchdir}{file.name}_{config_number}_results.csv"
+            if settings.bench:
+                with open(result_filename, mode="a") as results_file:
+                    print("#", file=results_file)
+                    print(
+                        textwrap.indent(current_config.model_dump_json(indent=4), "#"),
+                        file=results_file,
+                    )
             if settings.plot and not settings.plot_compare_only and not failure:
                 print("starting plot")
-                filename: str = f"{benchdir}{file.name}_{config_number}_results.csv"
+                keygen = False
+                if is_NewHashConfig(current_config):
+                    keygen = current_config.keygenerator.required
                 pltrs.plot(
-                    filename,
+                    result_filename,
                     name=f"{file.name}_{config_number}_{current_config.name}",
                     show_plots=settings.show_plots,
                     title=settings.plot_titles,
                     latex=settings.latex,
                     maxsize=settings.max_message_size,
+                    fontsize=settings.fontsize,
+                    y_cutoff=settings.plot_y_cutoff,
+                    keygen=keygen,
+                    plot_dir=plot_dir_path,
                 )
     if settings.plot:
         print("starting comparison plot")
@@ -1118,6 +1281,9 @@ for config, file in configs:
                 title=plt_title,
                 latex=settings.latex,
                 maxsize=settings.max_message_size,
+                fontsize=settings.fontsize,
+                y_cutoff=settings.plot_y_cutoff,
+                plot_dir=plot_dir_path,
             )
         else:
             print(yellow("Nothin to plot!"))
@@ -1136,7 +1302,8 @@ if settings.ctgrind:
 
 if settings.test:
     if settings.test_arith:
-        print("Arithmetic Tests:")
+        if len(arithmetic_test_results) > 0:
+            print("Arithmetic Tests:")
         for name, (res, label) in arithmetic_test_results.items():
             if res.wasSuccessful():
                 print(green(f'{label} ({name}): {"SUCCESS"}'))
@@ -1148,14 +1315,20 @@ if settings.test:
                     )
                 )
 
-    print("Hash Tests:")
-    for name, (res, label) in hash_test_results.items():
-        if res.wasSuccessful():
-            print(green(f'{label} ({name}): {"SUCCESS"}'))
-        else:
-            print(
-                red(
-                    f"{label} ({name}): {len(res.failures)} TESTS FAILED! \
-                    Please see results/{name}_test_results."
+    if settings.test_hash:
+        if len(hash_test_results) > 0:
+            print("Hash Tests:")
+        for name, (res, label) in hash_test_results.items():
+            if res.wasSuccessful():
+                print(green(f'{label} ({name}): {"SUCCESS"}'))
+            else:
+                print(
+                    red(
+                        f"{label} ({name}): {len(res.failures)} TESTS FAILED! \
+                        Please see results/{name}_test_results."
+                    )
                 )
-            )
+if settings.bench:
+    print(f"Benchmarks written to: {bench_dir_path}")
+if settings.plot:
+    print(f"Plots saved in: {plot_dir_path}")

@@ -1,6 +1,7 @@
 // MIT License
 //
 // Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+//               2025 Jan Gilcher, Jérôme Govinden
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -129,7 +130,7 @@ void sqr_test(uint64_t *res, uint64_t *a) {
 
 void mul_no_carry_test(uint64_t *res, uint64_t *a, uint64_t *b) {
     field_elem_t aa, bb;
-    dfield_elem_t rr;
+    dfield_elem_t rr = {0};
     memcpy(&aa, a, sizeof(field_elem_t));
     memcpy(&bb, b, sizeof(field_elem_t));
     field_mul_no_carry(&rr, &aa, &bb);
@@ -138,7 +139,7 @@ void mul_no_carry_test(uint64_t *res, uint64_t *a, uint64_t *b) {
 
 void sqr_no_carry_test(uint64_t *res, uint64_t *a) {
     field_elem_t aa;
-    dfield_elem_t rr;
+    dfield_elem_t rr = {0};
     memcpy(&aa, a, sizeof(field_elem_t));
     field_sqr_no_carry(&rr, &aa);
     memcpy(res, &rr, (sizeof(dfield_elem_t)));

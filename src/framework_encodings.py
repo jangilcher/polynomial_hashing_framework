@@ -1,6 +1,7 @@
 # MIT License
 #
 # Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+#               2025 Jan Gilcher, Jérôme Govinden
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -79,14 +80,16 @@ key_to_field_encoding: dict[int, tuple[str, str, Callable[..., KeyTransform]]] =
         "key_clamping_poly1305",
         partial(clamp_key, 0x0FFFFFFC0FFFFFFC0FFFFFFC0FFFFFFF),
     ),
-    # generic key clamping
-    11: ("none", "none", clamp_key),
+    # implicit generic key clamping
+    11: ("none_transform", "none", clamp_key),
     # clamp higher 4 bits
     12: (
         "key_clamping_up_transform",
         "key_clamping_up",
         partial(clamp_key, 0x0FFFFFFF0FFFFFFF0FFFFFFF0FFFFFFF0FFFFFFF0FFFFFFF),
     ),
+    # implicit identity encoding
+    13: ("none_transform", "none", identity),
 }
 
 bit_to_field_encoding: dict[int, tuple[str, str, Callable[..., Transform]]] = {
@@ -139,8 +142,8 @@ bit_to_field_encoding: dict[int, tuple[str, str, Callable[..., Transform]]] = {
 implicit_bf_encodings: list[int] = [
     3,
     4,
-    5,
     11,
+    13,
 ]
 field_to_bit_encoding: dict[int, tuple[str, str]] = {
     0: ("identity_transform", "identity"),

@@ -31,7 +31,8 @@
 
 void classical_Horner_UPK_NoDelay(unsigned char *out, const unsigned char *in,
                                   unsigned long long inlen,
-                                  const unsigned char *key) {
+                                  const unsigned char *key,
+                                  unsigned long long keylen) {
     if (inlen == 0) {
         memset(out, 0, OUTPUTSIZE);
         return;
@@ -41,17 +42,13 @@ void classical_Horner_UPK_NoDelay(unsigned char *out, const unsigned char *in,
         a; // temporary field element representing the block being processed
     // field_elem_t k; // univariate key
     // field_elem_precomputed_t k_p;
-    DECLARE_PC_ELEM(k)
+    DECLARE_PC_ELEM(k);
     // unsigned char buff[BUFFSIZE] = {0};
-    unsigned char transkey[BUFFSIZE] = {0};
     unsigned char tag_packed[BUFFSIZE] = {0}; // what is this size?
 
     // Transform key from a byte array to one field elements
-    transform_key(transkey, BUFFSIZE, key,
-                  KEYSIZE); // transform key from bytes to a packed field
-                            // elements of BLOCKSIZE bytes
 
-    UNPACK_PC_FIELD_ELEM(k, transkey);
+    UNPACK_AND_ENCODE_PC_KEY(k, key);
     INIT_PC_KEY(&k, &NOT_PRECOMPUTED(k));
     // unpack_field_elem(&k, (baseint_t *) transkey); // transform field
     // element(packed) into limb representation precompute_factor(&k_p, &k);

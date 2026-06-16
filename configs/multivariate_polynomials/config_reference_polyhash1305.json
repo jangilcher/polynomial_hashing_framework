@@ -1,0 +1,37 @@
+{
+    "name": "Comparison polyhash over 1305",
+    "configurations": [
+        {
+            "skip": false,
+            "name": "polyhash1305 g4",
+            "ref": true,
+            "lib": "polyhash",
+            "mac": "poly1305",
+            "implementation": "g4"
+        },
+        {
+            "skip": false,
+            "name": "polyhash1305 g8",
+            "ref": true,
+            "lib": "polyhash",
+            "mac": "poly1305",
+            "implementation": "g8"
+        },
+        {
+            "skip": false,
+            "name": "polyhash1305 g16",
+            "ref": true,
+            "lib": "polyhash",
+            "mac": "poly1305",
+            "implementation": "g16"
+        },
+        {
+            "skip": false,
+            "name": "polyhash1305 g32",
+            "ref": true,
+            "lib": "polyhash",
+            "mac": "poly1305",
+            "implementation": "g32"
+        }
+    ]
+}

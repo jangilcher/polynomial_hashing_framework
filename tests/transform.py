@@ -1,6 +1,7 @@
 # MIT License
 #
 # Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+#               2025 Jan Gilcher, Jérôme Govinden
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,12 +31,15 @@ MessageTransform = Callable[[list[str]], list[str]]
 KeyTransform = Callable[[int], int]
 
 
-def identity() -> Transform:
+def identity(*args, **kwargs) -> Transform:
     return lambda x: x
 
 
-def clamp_key(mask=0) -> KeyTransform:
-    return lambda x: x & mask
+def clamp_key(mask=None) -> KeyTransform:
+    if mask is None:
+        return lambda x: x
+    else:
+        return lambda x: x & mask
 
 
 def append_byte(byte="01") -> MessageTransform:

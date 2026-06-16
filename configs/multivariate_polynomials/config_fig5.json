@@ -1,0 +1,173 @@
+{
+    "name": "Comparison of d2lHash over 1271",
+    "configurations": [
+        {
+            "skip": false,
+            "name": "d2LHash1271",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1271",
+            "implementation": "d5_g4"
+        },
+        {
+            "skip": false,
+            "name": "d2LHash1305",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1305",
+            "implementation": "d5_g4"
+        },
+        {
+            "name": "d-2LHash1163 (framework)",
+            "ref": false,
+            "keysize": 14,
+            "blocksize": 14,
+            "tagsize": 15,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 116,
+                "delta": 3
+            },
+            "wordsize": 64,
+            "limbs": [
+                58,
+                58
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "option": null,
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff",
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform": {
+                "name": "simple_key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "d2LHP",
+                "num_keys": 1,
+                "parameters": [],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "BRW_NB_Delay",
+                        "num_keys": 1,
+                        "parameters": [
+                            1
+                        ],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "BRW"
+                        }
+                    },
+                    "superblocksize": 31,
+                    "superkeysize": 0
+                },
+                "test": {
+                    "name": "d2LHP"
+                },
+                "options": [
+                    "inline_inner"
+                ]
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "skip": false,
+            "description": ""
+        },
+        {
+            "name": "d-2LHash1305 (framework)",
+            "ref": false,
+            "keysize": 16,
+            "blocksize": 16,
+            "tagsize": 16,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 130,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [
+                44,
+                44,
+                42
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "option": null,
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff",
+                        "0xffffffffffffffff",
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform": {
+                "name": "simple_key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "d2LHP",
+                "num_keys": 1,
+                "parameters": [],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "BRW_NB_Delay",
+                        "num_keys": 1,
+                        "parameters": [
+                            1
+                        ],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "BRW"
+                        }
+                    },
+                    "superblocksize": 31,
+                    "superkeysize": 0
+                },
+                "test": {
+                    "name": "d2LHP"
+                },
+                "options": [
+                    "inline_inner"
+                ]
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "skip": false,
+            "description": ""
+        }
+    ]
+}

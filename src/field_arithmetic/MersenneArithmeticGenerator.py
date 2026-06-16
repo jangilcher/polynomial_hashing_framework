@@ -1,6 +1,7 @@
 # MIT License
 #
 # Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+#               2025 Jan Gilcher, Jérôme Govinden
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -41,48 +42,8 @@ def _OR(a, b) -> str:
 
 
 class MersenneArithmeticGenerator(CrandallArithmeticGenerator):
-    def __init__(
-        self,
-        pi,
-        limbbits,
-        num_limbs,
-        wordsize,
-        buffsize,
-        tabdepth=0,
-        encodingMSB: int = 0,
-        lowerEncode=False,
-        blocksize=16,
-        keysize=16,
-        lastOnlyEnc: bool = False,
-        encodingMask: Optional[List[int]] = None,
-        file=sys.stdout,
-        explicitEncoding=True,
-        nocheck=False,
-        doublecarry: bool = False,
-        doublecarryover: bool = False,
-        doublecarry_temp: bool = False,
-    ) -> None:
-        super().__init__(
-            pi,
-            1,
-            limbbits,
-            num_limbs,
-            wordsize,
-            buffsize,
-            tabdepth,
-            encodingMSB,
-            lowerEncode,
-            blocksize,
-            keysize,
-            lastOnlyEnc,
-            encodingMask,
-            file,
-            explicitEncoding,
-            nocheck,
-            doublecarry,
-            doublecarryover,
-            doublecarry_temp,
-        )
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, delta=1, **kwargs)
 
     @override
     def define_constants(self) -> None:
@@ -102,8 +63,8 @@ class MersenneArithmeticGenerator(CrandallArithmeticGenerator):
             "field_mul",
             [
                 (f"{self.field_elem_t}*", "res"),
-                (f"{self.field_elem_t}*", "a"),
-                (f"{self.field_elem_t}*", "b"),
+                (f"const {self.field_elem_t}*", "a"),
+                (f"const {self.field_elem_t}*", "b"),
             ],
         )
         self._startBody()
@@ -181,8 +142,8 @@ class MersenneArithmeticGenerator(CrandallArithmeticGenerator):
             "field_mul_no_carry",
             [
                 (f"{self.dfield_elem_t}*", "res"),
-                (f"{self.field_elem_t}*", "a"),
-                (f"{self.field_elem_t}*", "b"),
+                (f"const {self.field_elem_t}*", "a"),
+                (f"const {self.field_elem_t}*", "b"),
             ],
         )
         self._startBody()
@@ -299,7 +260,7 @@ class MersenneArithmeticGenerator(CrandallArithmeticGenerator):
         self._function_header(
             "int",
             "field_sqr",
-            [(f"{self.field_elem_t}*", "res"), (f"{self.field_elem_t}*", "a")],
+            [(f"{self.field_elem_t}*", "res"), (f"const {self.field_elem_t}*", "a")],
         )
         self._startBody()
         self._CALL("field_mul", ["res", "a", "a"], OFLAG=not self.nocheck)
@@ -411,7 +372,7 @@ class MersenneArithmeticGenerator(CrandallArithmeticGenerator):
         self._function_header(
             "int",
             "field_sqr_no_carry",
-            [(f"{self.dfield_elem_t}*", "res"), (f"{self.field_elem_t}*", "a")],
+            [(f"{self.dfield_elem_t}*", "res"), (f"const {self.field_elem_t}*", "a")],
         )
         self._startBody()
         self._CALL("field_mul_no_carry", ["res", "a", "a"], OFLAG=not self.nocheck)

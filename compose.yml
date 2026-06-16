@@ -1,0 +1,10 @@
+services:
+  hashing-framework:
+    image: polynomial-hashing-framework
+    build: .
+    volumes:
+      - ./docker_data/plots:/home/sage/framework/plots
+      - ./docker_data/bench:/home/sage/framework/bench
+      - ./docker_data/results:/home/sage/framework/results
+    stdin_open: true
+    tty: true

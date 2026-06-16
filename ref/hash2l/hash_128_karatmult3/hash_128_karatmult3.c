@@ -1,0 +1,144 @@
+/*complete Hash2L for GF(2^128)*/
+
+/*
+###############################################################################
+# Hash2L developers and authors:                                              #
+#                                                                             #
+# Debrup Chakraborty,  Indian Statistical Institute                           #
+# Sebati Ghosh,        Indian Statistical Institute                           #
+# Palash Sarkar,       Indian Statistical Institute                	      #
+###############################################################################
+#                                                                             #
+###############################################################################
+#                                                                             #
+# Copyright (c) 2016, Debrup Chakraborty, Sebati Ghosh, Palash Sarkar         #
+#                                                                             #
+#                                                                             #
+# Permission to use this code for Hash2L is granted.                          #
+#                                                                             #
+# Redistribution and use in source and binary forms, with or without          #
+# modification, are permitted provided that the following conditions are      #
+# met:                                                                        #
+#                                                                             #
+# * Redistributions of source code must retain the above copyright notice,    #
+#   this list of conditions and the following disclaimer.                     #
+#                                                                             #
+# * Redistributions in binary form must reproduce the above copyright         #
+#   notice, this list of conditions and the following disclaimer in the       #
+#   documentation and/or other materials provided with the distribution.      #
+#                                                                             #
+# * The names of the contributors may not be used to endorse or promote       #
+# products derived from this software without specific prior written          #
+# permission.                                                                 #
+#                                                                             #
+###############################################################################
+#                                                                             #
+###############################################################################
+# THIS SOFTWARE IS PROVIDED BY THE AUTHORS ""AS IS"" AND ANY                  #
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE           #
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR          #
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE        #
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 		      #
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 	      #
+# OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR          	      #
+# PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF      #
+# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING        #
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS          #
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                #
+###############################################################################
+*/
+
+#include "timedefs.h"
+#include <emmintrin.h>
+#include <immintrin.h>
+#include <smmintrin.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <wmmintrin.h>
+#include <x86intrin.h>
+
+#include "hash.h"
+
+#define MAX 20000
+
+#define STAMP                                                                  \
+    ({                                                                         \
+        unsigned res;                                                          \
+        __asm__ __volatile__("rdtsc" : "=a"(res) : : "edx");                   \
+        res;                                                                   \
+    }) /* Time stamp */
+
+void hash_128_karatmult3(unsigned char *out, const unsigned char *in,
+                         unsigned long long inlen, const unsigned char *k1,
+                         const unsigned long long keylen) {
+    // unsigned char f1[MAX];
+
+    int /*i,*/ j, /*k, l,*/ noOfBytes, /*length,*/ fullBlocks, remaining,
+        finalblock, partial128, pad = 0, full128, hornerLength = 0;
+
+    __m128i aa1[MAX], key, digest[MAX], result;
+
+    // double tmpd;
+
+    noOfBytes = (int)inlen;
+
+    // length = noOfBytes*8;
+    fullBlocks = noOfBytes / 496;
+
+    remaining = noOfBytes % 496;
+
+    if (remaining)
+        finalblock = fullBlocks + 1;
+    else
+        finalblock = fullBlocks;
+
+    partial128 = remaining % 16;
+    if (partial128)
+        pad = 16 - partial128;
+    if (noOfBytes == 0) {
+        pad = 16;
+        finalblock = 1;
+    }
+
+    if (pad == 0)
+        full128 = remaining / 16;
+    else
+        full128 = (remaining / 16) + 1;
+
+    hornerLength = finalblock;
+
+    // for(i = 0;i < noOfBytes;i++)
+    // {
+    // 	f1[i] = in[i];
+
+    // }
+    // for(i = noOfBytes;i < noOfBytes+pad;i++)
+    // {
+    // 	f1[i] = 0;
+
+    // }
+
+    key = _mm_set_epi8(k1[15], k1[14], k1[13], k1[12], k1[11], k1[10], k1[9],
+                       k1[8], k1[7], k1[6], k1[5], k1[4], k1[3], k1[2], k1[1],
+                       k1[0]);
+
+    for (j = 0; j < noOfBytes / 16; j++) {
+        aa1[j] = ((__m128i *)in)[j];
+    }
+    if (pad) {
+        aa1[j] = (__m128i){0};
+        memcpy(&aa1[j], &((__m128i *)in)[j], partial128);
+    }
+
+    HASH2L(aa1, key, digest, fullBlocks, remaining, noOfBytes, hornerLength,
+           full128, result);
+    ASSIGN(key, result);
+
+    memcpy(out, &result, 16);
+
+    // for (i = 0; i < 16; i++){
+    // 	out[i] = _mm_extract_epi8 (result, i);
+    // }
+}

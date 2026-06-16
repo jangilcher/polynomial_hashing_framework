@@ -1,6 +1,7 @@
 # MIT License
 #
 # Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+#               2025 Jan Gilcher, Jérôme Govinden
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -41,49 +42,8 @@ def _OR(a, b) -> str:
 
 
 class PrecomputingCrandallArithmeticGenerator(CrandallArithmeticGenerator):
-    def __init__(
-        self,
-        pi: int,
-        delta: int,
-        limbbits: List[int],
-        num_limbs: int,
-        wordsize: int,
-        buffsize: int,
-        tabdepth: int = 0,
-        encodingMSB=0,
-        lowerEncode: bool = False,
-        blocksize: int = 16,
-        keysize: int = 16,
-        lastOnlyEnc: bool = False,
-        encodingMask: Optional[List[int]] = None,
-        file=sys.stdout,
-        explicitEncoding: bool = True,
-        nocheck: bool = False,
-        doublecarry: bool = False,
-        doublecarryover: bool = False,
-        doublecarry_temp: bool = False,
-    ) -> None:
-        super().__init__(
-            pi,
-            delta,
-            limbbits,
-            num_limbs,
-            wordsize,
-            buffsize,
-            tabdepth,
-            encodingMSB,
-            lowerEncode,
-            blocksize,
-            keysize,
-            lastOnlyEnc,
-            encodingMask,
-            file,
-            explicitEncoding,
-            nocheck,
-            doublecarry,
-            doublecarryover,
-            doublecarry_temp,
-        )
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.pfield_elem_t: str = "field_elem_precomputed_t"
 
     @override
@@ -148,6 +108,21 @@ class PrecomputingCrandallArithmeticGenerator(CrandallArithmeticGenerator):
             file=self.file,
         )
         print(
+            "#define UNPACK_AND_ENCODE_PC_KEY_SINGLE(name,buff)\\\n"
+            + "  unpack_and_encode_key(&NOT_PRECOMPUTED(name), (baseint_t *) buff);",
+            file=self.file,
+        )
+        print(
+            "#define UNPACK_AND_ENCODE_PC_KEY_ARRAY(name,buff,index)\\\n"
+            + "  unpack_and_encode_key(&NOT_PRECOMPUTED(name)[index], (baseint_t *) buff)",
+            file=self.file,
+        )
+        print(
+            "#define UNPACK_AND_ENCODE_PC_KEY(...)\\\n"
+            + "  GET_MACRO(__VA_ARGS__,UNPACK_AND_ENCODE_PC_KEY_ARRAY,UNPACK_AND_ENCODE_PC_KEY_SINGLE)(__VA_ARGS__)",
+            file=self.file,
+        )
+        print(
             "#define INIT_PC_KEY(dst, src)\\\n" + "  precompute_factor(dst, src);",
             file=self.file,
         )
@@ -195,7 +170,7 @@ class PrecomputingCrandallArithmeticGenerator(CrandallArithmeticGenerator):
         self._function_header(
             "int",
             "precompute_factor",
-            [(f"{self.pfield_elem_t}*", "res"), (f"{self.field_elem_t}*", "b")],
+            [(f"{self.pfield_elem_t}*", "res"), (f"const {self.field_elem_t}*", "b")],
         )
         self._startBody()
         self._CALL(
@@ -238,8 +213,8 @@ class PrecomputingCrandallArithmeticGenerator(CrandallArithmeticGenerator):
             "field_mul_precomputed",
             [
                 (f"{self.field_elem_t}*", "res"),
-                (f"{self.field_elem_t}*", "a"),
-                (f"{self.pfield_elem_t}*", "b"),
+                (f"const {self.field_elem_t}*", "a"),
+                (f"const {self.pfield_elem_t}*", "b"),
             ],
         )
         self._startBody()
@@ -313,8 +288,8 @@ class PrecomputingCrandallArithmeticGenerator(CrandallArithmeticGenerator):
             "field_mul_precomputed_no_carry",
             [
                 (f"{self.dfield_elem_t}*", "res"),
-                (f"{self.field_elem_t}*", "a"),
-                (f"{self.pfield_elem_t}*", "b"),
+                (f"const {self.field_elem_t}*", "a"),
+                (f"const {self.pfield_elem_t}*", "b"),
             ],
         )
         self._startBody()
@@ -348,8 +323,8 @@ class PrecomputingCrandallArithmeticGenerator(CrandallArithmeticGenerator):
             "field_mul_precomputed_reduce",
             [
                 (f"{self.field_elem_t}*", "res"),
-                (f"{self.field_elem_t}*", "a"),
-                (f"{self.pfield_elem_t}*", "b"),
+                (f"const {self.field_elem_t}*", "a"),
+                (f"const {self.pfield_elem_t}*", "b"),
             ],
         )
         self._startBody()
@@ -364,107 +339,82 @@ class PrecomputingCrandallArithmeticGenerator(CrandallArithmeticGenerator):
         self._function_header(
             "int",
             "field_sqr_precomputed",
-            [(f"{self.field_elem_t}*", "res"), (f"{self.pfield_elem_t}*", "a")],
+            [(f"{self.field_elem_t}*", "res"), (f"const {self.pfield_elem_t}*", "a")],
         )
         self._startBody()
-        self._CALL(
-            "field_mul_precomputed",
-            ["res", f"({self.field_elem_t}*) a->val[0][0]", "a"],
-            OFLAG=not self.nocheck,
+        if doublecarry:
+            carrysize: int = self.wordsize * 2
+        else:
+            carrysize = self.wordsize
+        self._declare_var(f"uint{carrysize}_t", "c")
+        self._declare_var(f"uint{2*self.wordsize}_t", "acc")
+        self._declare_var(f"uint{2*self.wordsize}_t", f"d[{self.numlimbs}]", "{0}")
+        for k in range(0, self.numlimbs):
+            for i in range(0, self.numlimbs):
+                for j in range(i, self.numlimbs):
+                    kk: int = sum(self.limbbits[0:i]) + sum(self.limbbits[0:j])
+                    if kk == sum(self.limbbits[0:k]):
+                        self._MUL("acc", f"a->val[0][0][{i}]", f"a->val[{i}][{j}][{k}]")
+                        self._INC(f"d[{k}]", "acc", out_type=self.long_t)
+                        if i != j:
+                            self._INC(f"d[{k}]", "acc", out_type=self.long_t)
+                    elif (
+                        len(
+                            [
+                                x
+                                for x in cumsum([0] + self.limbbits)
+                                if x <= (kk - self.pi)
+                            ]
+                        )
+                        == k + 1
+                    ):
+                        self._MUL("acc", f"a->val[0][0][{i}]", f"a->val[{i}][{j}][{k}]")
+                        self._INC(f"d[{k}]", "acc", out_type=self.long_t)
+                        if i != j:
+                            self._INC(f"d[{k}]", "acc", out_type=self.long_t)
+            print(file=self.file)
+        print(file=self.file)
+        for i in range(0, self.numlimbs - 1):
+            self._SHR("c", f"d[{i}]", self.limbbits[i], carrysize)
+            self._ASSIGN(
+                f"res->val[{i}]",
+                _AND(_LO(f"d[{i}]", self.wordsize), self.limbmask(self.limbbits[i])),
+            )
+            self._INCLO(f"d[{i+1}]", "c", out_type=self.long_t)
+        self._SHR("c", f"d[{self.numlimbs-1}]", self.limbbits[-1], carrysize)
+        self._ASSIGN(
+            f"res->val[{self.numlimbs-1}]",
+            _AND(
+                _LO(f"d[{self.numlimbs-1}]", self.wordsize),
+                self.limbmask(self.limbbits[-1]),
+            ),
         )
-        # FIXME!
-        # if doublecarry:
-        #     carrysize: int = self.wordsize * 2
-        # else:
-        #     carrysize = self.wordsize
-        # self._declare_var(f"uint{carrysize}_t", "c")
-        # self._declare_var(f"uint{2*self.wordsize}_t", "acc")
-        # self._declare_var(f"uint{2*self.wordsize}_t", f"d[{self.numlimbs}]", "{0}")
-        # counters: List[Counter[FrozenSet[int]]] = []
-        # for k in range(0, self.numlimbs):
-        #     c: Counter[FrozenSet[int]] = Counter()
-        #     for i in range(0, self.numlimbs):
-        #         for j in range(0, self.numlimbs):
-        #             kk: int = sum(self.limbbits[0:i]) + sum(self.limbbits[0:j])
-        #             if kk == sum(self.limbbits[0:k]):
-        #                 c.update({frozenset({i, j})})
-        #             elif (
-        #                 len(
-        #                     [
-        #                         x
-        #                         for x in cumsum([0] + self.limbbits)
-        #                         if x <= (kk - self.pi)
-        #                     ]
-        #                 )
-        #                 == k + 1
-        #             ):
-        #                 c.update({frozenset({i, j})})
-        #     counters.append(c)
-
-        # for k, c in enumerate(counters):
-        #     for s, cnt in c.items():
-        #         if len(s) == 1:
-        #             i: int = set(s).pop()
-        #             j: int = i
-        #         else:
-        #             i, j = s
-        #         kk = sum(self.limbbits[0:i]) + sum(self.limbbits[0:j])
-        #         if kk == sum(self.limbbits[0:k]):
-        #             self._MUL(
-        #                 "acc",
-        #                 f"a->val[{i}][{j}][{j}]",
-        #                 f"a->val[{i}][{j}][{k}]" + (f" * {cnt}" if cnt > 1 else ""),
-        #             )
-        #             self._INC(f"d[{k}]", "acc")
-        #         elif (
-        #             len([x for x in cumsum([0] + self.limbbits) if x <= (kk - self.pi)])
-        #             == k + 1
-        #         ):
-        #             self._MUL(
-        #                 "acc",
-        #                 f"a->val[{i}][{j}][{j}]",
-        #                 f"a->val[{i}][{j}][{k}]" + (f" * {cnt}" if cnt > 1 else ""),
-        #             )
-        #             self._INC(f"d[{k}]", "acc")
-        #     print(file=self.file)
-        # print(file=self.file)
-
-        # for i in range(0, self.numlimbs - 1):
-        #     self._SHR("c", f"d[{i}]", self.limbbits[i], carrysize)
-        #     self._ASSIGN(
-        #         f"res->val[{i}]",
-        #         _AND(_LO(f"d[{i}]", self.wordsize), self.limbmask(self.limbbits[i])),
-        #     )
-        #     self._INCLO(f"d[{i+1}]", "c")
-        # self._SHR("c", f"d[{self.numlimbs-1}]", self.limbbits[-1], carrysize)
-        # self._ASSIGN(
-        #     f"res->val[{self.numlimbs-1}]",
-        #     _AND(
-        #         _LO(f"d[{self.numlimbs-1}]", self.wordsize),
-        #         self.limbmask(self.limbbits[-1]),
-        #     ),
-        # )
-        # if doublecarryover:
-        #     self._ADD("d[0]", "res->val[0]", f"(uint{carrysize}_t) c * {self.delta}")
-        #     self._ASSIGN("c", self._SHR_exp("d[0]", self.limbbits[0]))
-        #     self._ASSIGN("res->val[0]", _AND("d[0]", self.limbmask(self.limbbits[0])))
-        # else:
-        #     self._INC("res->val[0]", f"c * {self.delta}")
-        #     self._ASSIGN("c", self._SHR_exp("res->val[0]", self.limbbits[0]))
-        #     self._ASSIGN(
-        #         "res->val[0]", _AND("res->val[0]", self.limbmask(self.limbbits[0]))
-        #     )
-        # if self.numlimbs > 1:
-        #     self._INC("res->val[1]", "c")
-        # else:
-        #     self._INC("res->val[0]", "c")
+        if doublecarryover:
+            self._ADD(
+                "d[0]",
+                "res->val[0]",
+                f"(uint{carrysize}_t) c * {self.delta}",
+                res_type=self.long_t,
+            )
+            self._ASSIGN("c", self._SHR_exp("d[0]", self.limbbits[0]))
+            self._ASSIGN("res->val[0]", _AND("d[0]", self.limbmask(self.limbbits[0])))
+        else:
+            self._INC("res->val[0]", f"c * {self.delta}", out_type=self.int_t)
+            self._ASSIGN("c", self._SHR_exp("res->val[0]", self.limbbits[0]))
+            self._ASSIGN(
+                "res->val[0]", _AND("res->val[0]", self.limbmask(self.limbbits[0]))
+            )
+        if self.numlimbs > 1:
+            self._INC("res->val[1]", "c", out_type=self.int_t)
+        else:
+            self._INC("res->val[0]", "c", out_type=self.int_t)
         self._endBody()
 
     def square_precomputed_reduce(self) -> None:
         self._function_header(
             "int",
             "field_sqr_precomputed_reduce",
-            [(f"{self.field_elem_t}*", "res"), (f"{self.pfield_elem_t}*", "a")],
+            [(f"{self.field_elem_t}*", "res"), (f"const {self.pfield_elem_t}*", "a")],
         )
         self._startBody()
         self._declare_var(self.field_elem_t, "tmp")
@@ -476,64 +426,35 @@ class PrecomputingCrandallArithmeticGenerator(CrandallArithmeticGenerator):
         self._function_header(
             "int",
             "field_sqr_precomputed_no_carry",
-            [(f"{self.dfield_elem_t}*", "res"), (f"{self.pfield_elem_t}*", "a")],
+            [(f"{self.dfield_elem_t}*", "res"), (f"const {self.pfield_elem_t}*", "a")],
         )
         self._startBody()
-        self._CALL(
-            "field_mul_precomputed_no_carry",
-            ["res", f"({self.field_elem_t}*) a->val[0][0]", "a"],
-            OFLAG=not self.nocheck,
-        )
-        # FIXME!
-        # self._declare_var(f"uint{2*self.wordsize}_t", "acc")
-        # counters: List[Counter[FrozenSet[int]]] = []
-        # for k in range(0, self.numlimbs):
-        #     c: Counter[FrozenSet[int]] = Counter()
-        #     for i in range(0, self.numlimbs):
-        #         for j in range(0, self.numlimbs):
-        #             kk: int = sum(self.limbbits[0:i]) + sum(self.limbbits[0:j])
-        #             if kk == sum(self.limbbits[0:k]):
-        #                 c.update({frozenset({i, j})})
-        #             elif (
-        #                 len(
-        #                     [
-        #                         x
-        #                         for x in cumsum([0] + self.limbbits)
-        #                         if x <= (kk - self.pi)
-        #                     ]
-        #                 )
-        #                 == k + 1
-        #             ):
-        #                 c.update({frozenset({i, j})})
-        #     counters.append(c)
-
-        # for k, c in enumerate(counters):
-        #     self._ASSIGN(f"res->val[{k}]", "0")
-        #     for s, cnt in c.items():
-        #         if len(s) == 1:
-        #             i: int = set(s).pop()
-        #             j: int = i
-        #         else:
-        #             i, j = s
-        #         kk = sum(self.limbbits[0:i]) + sum(self.limbbits[0:j])
-        #         if kk == sum(self.limbbits[0:k]):
-        #             self._MUL(
-        #                 "acc",
-        #                 f"a->val[{i}][{j}][{j}]",
-        #                 f"a->val[{i}][{j}][{k}]" + (f" * {cnt}" if cnt > 1 else ""),
-        #             )
-        #             self._INC(f"res->val[{k}]", "acc")
-        #         elif (
-        #             len([x for x in cumsum([0] + self.limbbits) if x <= (kk - self.pi)])
-        #             == k + 1
-        #         ):
-        #             self._MUL(
-        #                 "acc",
-        #                 f"a->val[{i}][{j}][{j}]",
-        #                 f"a->val[{i}][{j}][{k}]" + (f" * {cnt}" if cnt > 1 else ""),
-        #             )
-        #             self._INC(f"res->val[{k}]", "acc")
-        #     print(file=self.file)
+        self._declare_var(f"uint{2*self.wordsize}_t", "acc")
+        for k in range(0, self.numlimbs):
+            self._ASSIGN(f"res->val[{k}]", "0")
+            for i in range(0, self.numlimbs):
+                for j in range(i, self.numlimbs):
+                    kk: int = sum(self.limbbits[0:i]) + sum(self.limbbits[0:j])
+                    if kk == sum(self.limbbits[0:k]):
+                        self._MUL("acc", f"a->val[0][0][{i}]", f"a->val[{i}][{j}][{k}]")
+                        self._INC(f"res->val[{k}]", "acc", out_type=self.long_t)
+                        if i != j:
+                            self._INC(f"res->val[{k}]", "acc", out_type=self.long_t)
+                    elif (
+                        len(
+                            [
+                                x
+                                for x in cumsum([0] + self.limbbits)
+                                if x <= (kk - self.pi)
+                            ]
+                        )
+                        == k + 1
+                    ):
+                        self._MUL("acc", f"a->val[0][0][{i}]", f"a->val[{i}][{j}][{k}]")
+                        self._INC(f"res->val[{k}]", "acc", out_type=self.long_t)
+                        if i != j:
+                            self._INC(f"res->val[{k}]", "acc", out_type=self.long_t)
+            print(file=self.file)
         self._endBody()
 
     @override

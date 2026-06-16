@@ -1,6 +1,7 @@
 # MIT License
 #
 # Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+#               2025 Jan Gilcher, Jérôme Govinden
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -183,8 +184,11 @@ class TestArith(unittest.TestCase):
                 self.lib.field_mul_test(
                     ctypes.pointer(res), ctypes.pointer(arr1), ctypes.pointer(arr2)
                 )
-                for i, j in zip(res.val, self.int_to_field_elem((a * b) % self.p).val):
-                    self.assertEqual(i, j)
+                res_int = self.field_elem_to_int(res) % self.p
+                ref_int = (a * b) % self.p
+                self.assertEqual(res_int, ref_int, f"{a}*{b} = {res_int} not {res_int}")
+                # for i, j in zip(res.val, self.int_to_field_elem((a * b) % self.p).val):
+                #     self.assertEqual(i, j, f"{a}*{b} = {j} not {i}")
 
     def test_add(self):
         for t in range(0, self.iterations):
@@ -201,8 +205,11 @@ class TestArith(unittest.TestCase):
                 self.lib.field_add_test(
                     ctypes.pointer(res), ctypes.pointer(arr1), ctypes.pointer(arr2)
                 )
-                for i, j in zip(res.val, ref):
-                    self.assertEqual(i, j)
+                # res_int = self.field_elem_to_int(res) % self.p
+                # ref_int = (a + b) % self.p
+                # self.assertEqual(res_int, ref_int, f"{a}+{b} = {res_int} not {res_int}")
+                for n, (i, j) in enumerate(zip(res.val, ref)):
+                    self.assertEqual(i, j, f"({a}+{b})[{n}] = {j} not {i}")
 
     def test_sqr(self):
         for t in range(0, self.iterations):
@@ -211,8 +218,11 @@ class TestArith(unittest.TestCase):
                 arr1 = self.int_to_field_elem(a)
                 res = self.Field_Elem()
                 self.lib.field_sqr_test(ctypes.pointer(res), ctypes.pointer(arr1))
-                for i, j in zip(res.val, self.int_to_field_elem((a**2) % self.p).val):
-                    self.assertEqual(i, j)
+                res_int = self.field_elem_to_int(res) % self.p
+                ref_int = (a * a) % self.p
+                self.assertEqual(res_int, ref_int, f"{a}^2 = {res_int} not {res_int}")
+                # for i, j in zip(res.val, self.int_to_field_elem((a**2) % self.p).val):
+                #     self.assertEqual(i, j, f"{a}^2 = {j} not {i}")
 
     def test_mul_no_carry(self):
         for t in range(0, self.iterations):
@@ -226,7 +236,11 @@ class TestArith(unittest.TestCase):
                 self.lib.field_mul_no_carry_test(
                     ctypes.pointer(res), ctypes.pointer(arr1), ctypes.pointer(arr2)
                 )
-                self.assertEqual(self.dfield_elem_to_int(res) % self.p, a * b % self.p)
+                self.assertEqual(
+                    self.dfield_elem_to_int(res) % self.p,
+                    a * b % self.p,
+                    f"{a}*{b} = {a * b % self.p} not {self.dfield_elem_to_int(res) % self.p}",
+                )
 
     def test_add_mix(self):
         for t in range(0, self.iterations):
@@ -243,7 +257,11 @@ class TestArith(unittest.TestCase):
                     ctypes.pointer(res), ctypes.pointer(arr1), ctypes.pointer(arr2)
                 )
                 for i, j in zip(res.val, ref):
-                    self.assertEqual(self.from_long_int(i), self.from_long_int(j))
+                    self.assertEqual(
+                        self.from_long_int(i),
+                        self.from_long_int(j),
+                        f"{a}+{b} = {self.from_long_int(j)} not {self.from_long_int(i)}",
+                    )
 
     def test_add_dbl(self):
         for t in range(0, self.iterations):
@@ -261,7 +279,11 @@ class TestArith(unittest.TestCase):
                     ctypes.pointer(res), ctypes.pointer(arr1), ctypes.pointer(arr2)
                 )
                 for i, j in zip(res.val, ref):
-                    self.assertEqual(self.from_long_int(i), self.from_long_int(j))
+                    self.assertEqual(
+                        self.from_long_int(i),
+                        self.from_long_int(j),
+                        f"{a}+{b} = {self.from_long_int(j)} not {self.from_long_int(i)}",
+                    )
 
     def test_sqr_no_carry(self):
         for t in range(0, self.iterations):
@@ -273,7 +295,11 @@ class TestArith(unittest.TestCase):
                 self.lib.field_sqr_no_carry_test(
                     ctypes.pointer(res), ctypes.pointer(arr1)
                 )
-                self.assertEqual(self.dfield_elem_to_int(res) % self.p, a * a % self.p)
+                self.assertEqual(
+                    self.dfield_elem_to_int(res) % self.p,
+                    a * a % self.p,
+                    f"{a}^2 = {a * a % self.p} not {self.dfield_elem_to_int(res) % self.p}",
+                )
 
     def test_reduce(self):
         for t in range(0, self.iterations):
@@ -290,7 +316,11 @@ class TestArith(unittest.TestCase):
                 res = self.Field_Elem()
                 a = self.int_to_field_elem(a)
                 self.lib.reduce_test(ctypes.pointer(res), ctypes.pointer(a))
-                self.assertEqual(self.field_elem_to_int(res), ref)
+                self.assertEqual(
+                    self.field_elem_to_int(res),
+                    ref,
+                    f"expected {ref}, got {self.field_elem_to_int(res)}.",
+                )
 
     def test_carry_round(self):
         for t in range(0, self.iterations):
@@ -309,7 +339,7 @@ class TestArith(unittest.TestCase):
                 self.lib.carry_round_test(ctypes.pointer(res), ctypes.pointer(a))
                 ref = (b // (2**self.pi)) * self.delta + (b % (2**self.pi))
                 res = self.field_elem_to_int(res)
-                self.assertEqual(res, ref)
+                self.assertEqual(res, ref, f"expected {ref}, got {res}.")
 
     def test_unpack_msg(self):
         for t in range(0, self.iterations):
@@ -357,8 +387,11 @@ class TestArith(unittest.TestCase):
                 self.lib.field_mul_precomputed_test(
                     ctypes.pointer(res), ctypes.pointer(arr1), ctypes.pointer(arr2)
                 )
-                for i, j in zip(res.val, self.int_to_field_elem((a * b) % self.p).val):
-                    self.assertEqual(i, j)
+                res_int = self.field_elem_to_int(res) % self.p
+                ref_int = (a * b) % self.p
+                self.assertEqual(res_int, ref_int, f"{a}*{b} = {res_int} not {res_int}")
+                # for i, j in zip(res.val, self.int_to_field_elem((a * b) % self.p).val):
+                #     self.assertEqual(i, j, f"{a}*{b} = {j} not {i}")
 
     def test_mul_precomputed_no_carry(self):
         for t in range(0, self.iterations):
@@ -372,7 +405,11 @@ class TestArith(unittest.TestCase):
                 self.lib.field_mul_precomputed_no_carry_test(
                     ctypes.pointer(res), ctypes.pointer(arr1), ctypes.pointer(arr2)
                 )
-                self.assertEqual(self.dfield_elem_to_int(res) % self.p, a * b % self.p)
+                self.assertEqual(
+                    self.dfield_elem_to_int(res) % self.p,
+                    a * b % self.p,
+                    f"{a}*{b} = {a * b % self.p} not {self.dfield_elem_to_int(res) % self.p}",
+                )
 
     def test_sqr_precomputed(self):
         for t in range(0, self.iterations):
@@ -383,8 +420,11 @@ class TestArith(unittest.TestCase):
                 self.lib.field_sqr_precomputed_test(
                     ctypes.pointer(res), ctypes.pointer(arr1)
                 )
-                for i, j in zip(res.val, self.int_to_field_elem((a**2) % self.p).val):
-                    self.assertEqual(i, j)
+                res_int = self.field_elem_to_int(res) % self.p
+                ref_int = (a * a) % self.p
+                self.assertEqual(res_int, ref_int, f"{a}^2 = {res_int} not {res_int}")
+                # for i, j in zip(res.val, self.int_to_field_elem((a**2) % self.p).val):
+                #     self.assertEqual(i, j, f"{a}^2 = {j} not {i}")
 
     def test_sqr_precomputed_no_carry(self):
         for t in range(0, self.iterations):
@@ -396,7 +436,11 @@ class TestArith(unittest.TestCase):
                 self.lib.field_sqr_precomputed_no_carry_test(
                     ctypes.pointer(res), ctypes.pointer(arr1)
                 )
-                self.assertEqual(self.dfield_elem_to_int(res) % self.p, a * a % self.p)
+                self.assertEqual(
+                    self.dfield_elem_to_int(res) % self.p,
+                    a * a % self.p,
+                    f"{a}^2 = {a * a % self.p} not {self.dfield_elem_to_int(res) % self.p}",
+                )
 
 
 if __name__ == "__main__":

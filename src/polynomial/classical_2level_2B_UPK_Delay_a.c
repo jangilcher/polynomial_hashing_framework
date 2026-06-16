@@ -33,7 +33,8 @@
 void classical_2level_2B_UPK_Delay_a(unsigned char *out,
                                      const unsigned char *in,
                                      unsigned long long inlen,
-                                     const unsigned char *key) {
+                                     const unsigned char *key,
+                                     unsigned long long keylen) {
     if (inlen == 0) {
         memset(out, 0, OUTPUTSIZE);
         return;
@@ -42,13 +43,11 @@ void classical_2level_2B_UPK_Delay_a(unsigned char *out,
     dfield_elem_t acc_d[2] = {0};
     field_elem_t a[2];
     DECLARE_PC_ELEM_ARRAY(k, 2);
-    unsigned char transkey[BUFFSIZE] = {0};
     unsigned char tag_packed[BUFFSIZE] = {0};
     unsigned long long double_blocksize = BLOCKSIZE + BLOCKSIZE;
 
     // Transform key from a byte array to one field elements
-    transform_key(transkey, BUFFSIZE, key, KEYSIZE);
-    UNPACK_PC_FIELD_ELEM_ARRAY(k, transkey, 0);
+    UNPACK_AND_ENCODE_PC_KEY(k, key, 0);
     INIT_PC_KEY(k, NOT_PRECOMPUTED(k));
 
     // process msg of only 1 block

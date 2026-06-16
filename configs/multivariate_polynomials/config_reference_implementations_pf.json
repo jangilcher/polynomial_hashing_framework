@@ -1,0 +1,1289 @@
+{
+    "name": "Comparison of Library Implementations of Polynomial Hash Functions",
+    "configurations": [
+        {
+            "skip": false,
+            "name": "OpenSSL Poly1305 (AVX2)",
+            "ref": true,
+            "lib": "openssl",
+            "mac": "poly1305",
+            "implementation": null
+        },
+        {
+            "skip": false,
+            "name": "HACL* Poly1305 (AVX2)",
+            "ref": true,
+            "lib": "haclstar",
+            "mac": "poly1305",
+            "implementation": "256"
+        },
+        {
+            "skip": false,
+            "name": "d2LHash1271 \\cite{bhattacharyya2023polynomial}",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1271",
+            "implementation": "d5_g4"
+        },
+        {
+            "skip": false,
+            "name": "d2LHash1305 \\cite{bhattacharyya2023polynomial}",
+            "ref": true,
+            "lib": "d2lHash",
+            "mac": "d2lHash1305",
+            "implementation": "d5_g4"
+        },
+        {
+            "skip": false,
+            "name": "Poly1163 \\cite{SP:DGGP24}",
+            "ref": false,
+            "keysize": 14,
+            "blocksize": 14,
+            "tagsize": 15,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 116,
+                "delta": 3
+            },
+            "wordsize": 64,
+            "limbs": [
+                58,
+                58
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "option": "precompute"
+            },
+            "key_transform": {
+                "id": 1,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x1",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "polynomial": {
+                "name": "classical_2level_NB_UPK_Delay_a",
+                "parameters": [
+                    8
+                ],
+                "inner_polynomial": null,
+                "test": {
+                    "name": "classical_polynomial"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            }
+        },
+        {
+            "skip": false,
+            "name": "\\textit{tBRW-NMH 24SB 1163}",
+            "ref": false,
+            "keysize": 14,
+            "blocksize": 14,
+            "tagsize": 15,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 116,
+                "delta": 3
+            },
+            "wordsize": 64,
+            "limbs": [
+                58,
+                58
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform": {
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tBRW",
+                "parameters": [
+                    0
+                ],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [
+                            8,
+                            0,
+                            0,
+                            1
+                        ],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 24,
+                    "superkeysize": 24
+                },
+                "test": {
+                    "name": "tBRW"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+        {
+            "skip": false,
+            "name": "\\textit{tMMH-NMH 24SB 1163}",
+            "ref": false,
+            "keysize": 14,
+            "blocksize": 14,
+            "tagsize": 15,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 116,
+                "delta": 3
+            },
+            "wordsize": 64,
+            "limbs": [
+                58,
+                58
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform": {
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tMMH",
+                "parameters": [
+                    0
+                ],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [
+                            8,
+                            0,
+                            0,
+                            1
+                        ],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 24,
+                    "superkeysize": 24
+                },
+                "test": {
+                    "name": "tMMH"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+        {
+            "skip": false,
+            "name": "\\textit{tBRW-NMH 28SB 2265}",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [
+                57,
+                57,
+                57,
+                55
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": [
+                    "doublecarry",
+                    "doublecarryover"
+                ]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform": {
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tBRW",
+                "parameters": [
+                    0
+                ],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [
+                            4,
+                            0,
+                            0,
+                            1
+                        ],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 28,
+                    "superkeysize": 28
+                },
+                "test": {
+                    "name": "tBRW"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+        {
+            "skip": false,
+            "name": "\\textit{tMMH-NMH 28SB 2265}",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [
+                57,
+                57,
+                57,
+                55
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": [
+                    "doublecarry",
+                    "doublecarryover"
+                ]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform": {
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tMMH",
+                "parameters": [
+                    0
+                ],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [
+                            4,
+                            0,
+                            0,
+                            1
+                        ],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 28,
+                    "superkeysize": 28
+                },
+                "test": {
+                    "name": "tMMH"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+        {
+            "skip": false,
+            "name": "\\textit{1-MHP-1-NMH 36SB 1163}",
+            "ref": false,
+            "keysize": 14,
+            "blocksize": 14,
+            "tagsize": 15,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 116,
+                "delta": 3
+            },
+            "wordsize": 64,
+            "limbs": [
+                58,
+                58
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform": {
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 1,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [
+                            1,
+                            0,
+                            0,
+                            1
+                        ],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 36,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+        {
+            "skip": false,
+            "name": "\\textit{1-MHP-1-NMH 36SB 2265}",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [
+                57,
+                57,
+                57,
+                55
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": [
+                    "doublecarry",
+                    "doublecarryover"
+                ]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform": {
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 1,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "parameters": [
+                            4,
+                            0,
+                            0,
+                            1
+                        ],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 36,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+        {
+            "skip": false,
+            "description": "",
+            "name": "\\textit{5-MHP-1-NMH 32SB 1163}",
+            "ref": false,
+            "keysize": 14,
+            "blocksize": 14,
+            "tagsize": 15,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 116,
+                "delta": 3
+            },
+            "wordsize": 64,
+            "limbs": [
+                58,
+                58
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "option": null,
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff",
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform": {
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 5,
+                "parameters": [],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "num_keys": 1,
+                        "parameters": [
+                            6,
+                            0,
+                            0,
+                            1
+                        ],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 32,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                },
+                "options": [
+                    "inline_inner"
+                ]
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            }
+        },
+        {
+            "skip": false,
+            "description": "",
+            "name": "\\textit{5-MHP-1-NMH 36SB 2265}",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [
+                57,
+                57,
+                57,
+                55
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "option": null,
+                "options": [
+                    "doublecarry",
+                    "doublecarryover"
+                ]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff",
+                        "0xffffffffffffffff",
+                        "0xffffffffffffffff",
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform": {
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 5,
+                "parameters": [],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "NMH_tweak_NB_Delay",
+                        "num_keys": 1,
+                        "parameters": [
+                            3,
+                            0,
+                            0,
+                            1
+                        ],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "NMH"
+                        }
+                    },
+                    "superblocksize": 36,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                },
+                "options": [
+                    "inline_inner"
+                ]
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            }
+        },
+        {
+            "skip": false,
+            "name": "\\textit{Hash2L 1163}",
+            "ref": false,
+            "keysize": 14,
+            "blocksize": 14,
+            "tagsize": 15,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 116,
+                "delta": 3
+            },
+            "wordsize": 64,
+            "limbs": [
+                58,
+                58
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform": {
+                "name": "simple_key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 1,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "BRW_NB_Delay",
+                        "parameters": [
+                            1
+                        ],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "BRW"
+                        }
+                    },
+                    "superblocksize": 31,
+                    "superkeysize": 0
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+        {
+            "skip": false,
+            "name": "\\textit{Hash2L 1305}",
+            "ref": false,
+            "keysize": 16,
+            "blocksize": 16,
+            "tagsize": 16,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 130,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [
+                44,
+                44,
+                42
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform": {
+                "name": "simple_key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 1,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "BRW_NB_Delay",
+                        "parameters": [
+                            1
+                        ],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "BRW"
+                        }
+                    },
+                    "superblocksize": 31,
+                    "superkeysize": 0
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+        {
+            "skip": false,
+            "name": "\\textit{Hash2L 2265}",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [
+                57,
+                57,
+                57,
+                55
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": [
+                    "doublecarry",
+                    "doublecarryover"
+                ]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform": {
+                "name": "simple_key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 1,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "BRW_NB_Delay",
+                        "parameters": [
+                            1
+                        ],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "BRW"
+                        }
+                    },
+                    "superblocksize": 31,
+                    "superkeysize": 0
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+        {
+            "name": "Poly2663 \\cite{SP:DGGP24}",
+            "ref": false,
+            "keysize": 32,
+            "blocksize": 32,
+            "tagsize": 34,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 266,
+                "delta": 3
+            },
+            "wordsize": 64,
+            "limbs": [
+                54,
+                54,
+                54,
+                54,
+                50
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "option": "precompute"
+            },
+            "key_transform": {
+                "id": 1,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x1",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "polynomial": {
+                "name": "classical_2level_NB_UPK_Delay_a",
+                "parameters": [
+                    8
+                ],
+                "inner_polynomial": null,
+                "test": {
+                    "name": "classical_polynomial"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            }
+        },
+        {
+            "name": "\\textit{poly2265}",
+            "skip": false,
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [
+                57,
+                57,
+                57,
+                55
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": [
+                    "precompute",
+                    "doublecarry",
+                    "doublecarryover"
+                ]
+            },
+            "key_transform": {
+                "id": 1,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x1",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "polynomial": {
+                "name": "classical_2level_NB_UPK_Delay_a",
+                "parameters": [
+                    8
+                ],
+                "inner_polynomial": null,
+                "test": {
+                    "name": "classical_polynomial"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            }
+        },
+        {
+            "name": "\\textit{d2LHash1163}",
+            "ref": false,
+            "keysize": 14,
+            "blocksize": 14,
+            "tagsize": 15,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 116,
+                "delta": 3
+            },
+            "wordsize": 64,
+            "limbs": [
+                58,
+                58
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "option": null,
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff",
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform": {
+                "name": "simple_key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "d2LHP",
+                "num_keys": 1,
+                "parameters": [],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "BRW_NB_Delay",
+                        "num_keys": 1,
+                        "parameters": [
+                            1
+                        ],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "BRW"
+                        }
+                    },
+                    "superblocksize": 31,
+                    "superkeysize": 0
+                },
+                "test": {
+                    "name": "d2LHP"
+                },
+                "options": [
+                    "inline_inner"
+                ]
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "skip": false,
+            "description": ""
+        },
+        {
+            "name": "\\textit{d2LHash1305}",
+            "ref": false,
+            "keysize": 16,
+            "blocksize": 16,
+            "tagsize": 16,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 130,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [
+                44,
+                44,
+                42
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "option": null,
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff",
+                        "0xffffffffffffffff",
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform": {
+                "name": "simple_key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "d2LHP",
+                "num_keys": 1,
+                "parameters": [],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "BRW_NB_Delay",
+                        "num_keys": 1,
+                        "parameters": [
+                            1
+                        ],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "BRW"
+                        }
+                    },
+                    "superblocksize": 31,
+                    "superkeysize": 0
+                },
+                "test": {
+                    "name": "d2LHP"
+                },
+                "options": [
+                    "inline_inner"
+                ]
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "skip": false,
+            "description": ""
+        },
+        {
+            "name": "\\textit{d2LHash2265}",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [
+                57,
+                57,
+                57,
+                55
+            ],
+            "multiplication": {
+                "method": "schoolbook",
+                "option": null,
+                "options": null
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff",
+                        "0xffffffffffffffff",
+                        "0xffffffffffffffff",
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform": {
+                "name": "simple_key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "d2LHP",
+                "num_keys": 1,
+                "parameters": [],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "BRW_NB_Delay",
+                        "num_keys": 1,
+                        "parameters": [
+                            1
+                        ],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "BRW"
+                        }
+                    },
+                    "superblocksize": 31,
+                    "superkeysize": 0
+                },
+                "test": {
+                    "name": "d2LHP"
+                },
+                "options": [
+                    "inline_inner"
+                ]
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "skip": false,
+            "description": ""
+        }            
+    ]
+}

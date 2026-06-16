@@ -1,0 +1,549 @@
+{
+    "name": "4-MHP with HKM over PF2265",
+    "configurations": [
+
+        {
+            "skip": false,
+            "name": "SB4_HKM",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [57, 57, 57, 55],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": ["doublecarry", "doublecarryover"]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 4,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "HKM",
+                        "parameters": [1, 0],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "HKM"
+                        }
+                    },
+                    "superblocksize": 4,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "SB8_HKM",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [57, 57, 57, 55],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": ["doublecarry", "doublecarryover"]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 4,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "HKM",
+                        "parameters": [1, 0],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "HKM"
+                        }
+                    },
+                    "superblocksize": 8,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "SB12_HKM",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [57, 57, 57, 55],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": ["doublecarry", "doublecarryover"]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 4,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "HKM",
+                        "parameters": [1, 0],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "HKM"
+                        }
+                    },
+                    "superblocksize": 12,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "SB16_HKM",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [57, 57, 57, 55],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": ["doublecarry", "doublecarryover"]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 4,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "HKM",
+                        "parameters": [1, 0],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "HKM"
+                        }
+                    },
+                    "superblocksize": 16,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "SB20_HKM",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [57, 57, 57, 55],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": ["doublecarry", "doublecarryover"]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 4,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "HKM",
+                        "parameters": [1, 0],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "HKM"
+                        }
+                    },
+                    "superblocksize": 20,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "SB24_HKM",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [57, 57, 57, 55],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": ["doublecarry", "doublecarryover"]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 4,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "HKM",
+                        "parameters": [1, 0],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "HKM"
+                        }
+                    },
+                    "superblocksize": 24,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "SB28_HKM",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [57, 57, 57, 55],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": ["doublecarry", "doublecarryover"]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 4,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "HKM",
+                        "parameters": [1, 0],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "HKM"
+                        }
+                    },
+                    "superblocksize": 28,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "SB32_HKM",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [57, 57, 57, 55],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": ["doublecarry", "doublecarryover"]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "MHP",
+                "num_keys": 4,
+                "parameters": [],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "HKM",
+                        "parameters": [1, 0],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "HKM"
+                        }
+                    },
+                    "superblocksize": 32,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "MHP"
+                }
+            },
+            "keygenerator": {
+                "required": false,
+                "number_of_bytes": null
+            },
+            "description": ""
+        }
+    ]
+}

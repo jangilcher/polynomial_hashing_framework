@@ -28,6 +28,7 @@
 void classical_2level_4B_PK_Delay_b_appbit_2radix(unsigned char *out,
                                                   const unsigned char *in,
                                                   unsigned long long inlen,
-                                                  const unsigned char *key);
+                                                  const unsigned char *key,
+                                                  unsigned long long keylen);
 
 #endif

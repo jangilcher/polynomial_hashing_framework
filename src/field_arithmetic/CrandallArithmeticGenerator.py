@@ -1,6 +1,7 @@
 # MIT License
 #
 # Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+#               2025 Jan Gilcher, Jérôme Govinden
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -46,40 +47,17 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
         self,
         pi: int,
         delta: int,
-        limbbits: List[int],
-        num_limbs: int,
-        wordsize: int,
         buffsize: int,
-        tabdepth: int = 0,
-        encodingMSB: int = 0,
-        lowerEncode: bool = False,
-        blocksize: int = 16,
-        keysize: int = 16,
-        lastOnlyEnc: bool = False,
-        encodingMask: Optional[List[int]] = None,
-        file=sys.stdout,
-        explicitEncoding: bool = True,
         nocheck: bool = False,
         doublecarry: bool = False,
         doublecarryover: bool = False,
         doublecarry_temp: bool = False,
+        *args,
+        **kwargs,
     ) -> None:
-        super().__init__(
-            limbbits,
-            num_limbs,
-            wordsize,
-            tabdepth,
-            encodingMSB,
-            lowerEncode,
-            blocksize,
-            lastOnlyEnc,
-            encodingMask,
-            file,
-            explicitEncoding,
-        )
+        super().__init__(*args, **kwargs)
         self.pi: int = pi
         self.delta: int = delta
-        self.keysize: int = keysize
         self.buffsize: int = buffsize
         self.nocheck: bool = nocheck
         self.doublecarry: bool = doublecarry
@@ -186,7 +164,7 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
         self._function_header(
             "int",
             "pack_field_elem",
-            [(f"{self.int_t}*", "res"), (f"{self.field_elem_t}*", "a")],
+            [(f"{self.int_t}*", "res"), (f"const {self.field_elem_t}*", "a")],
         )
         self._startBody(nocheck=True)
         j: int = 0
@@ -216,47 +194,142 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
         return f'({self._SHL_exp(f"({self.int_t}) 1", bits)} - 1)'
 
     @override
+    def field_elem_get_one(self) -> None:
+        self._function_header(
+            f"{self.field_elem_t}",
+            "field_elem_get_one",
+            [],
+            nocheck=True,
+        )
+        self._startBody(nocheck=True)
+        retVal = f"({self.field_elem_t})" + "{{1" + ", 0" * (self.numlimbs - 1) + "}}"
+        self._endBody(nocheck=True, retVal=retVal)
+
+    @override
     def unpack_key(self) -> None:
         self._function_header(
             "int",
             "unpack_key",
-            [(f"{self.field_elem_t}*", "res"), (f"{self.int_t}*", "a")],
+            [(f"{self.field_elem_t}*", "res"), (f"const {self.int_t}*", "a")],
         )
         self._startBody(nocheck=True)
+        self._declare_var(name="key", typ="const uint8_t *const", val="(uint8_t *) a")
+        taken: int = 0
+        available_bytes = self.buffsize
+        pos = 0
+        pos_byte = 0
+        for i, bits in enumerate(self.limbbits):
+            pos_byte = pos // 8
+            taken = pos % 8
+            available_bytes = self.buffsize - pos_byte
+            if available_bytes < self.wordbytes:
+                pos_byte = self.buffsize - self.wordbytes
+                taken += (self.wordbytes - available_bytes) * 8
+            key_limb = f"*((uint{self.wordsize}_t *)(key+{pos_byte}))"
+
+            key_bits_exp = self._SHR_exp(key_limb, taken)
+
+            available_bits = self.wordsize - taken
+            if available_bits < bits and available_bytes > self.wordbytes:
+                key_limb = (
+                    f"((uint{self.wordsize}_t) (key[{pos_byte + self.wordsize//8}]))"
+                )
+                key_bits_exp = _OR(
+                    key_bits_exp, self._SHL_exp(key_limb, available_bits)
+                )
+
+            limb_clamp = 2**bits - 1
+            self._ASSIGN(
+                f"res->val[{i}]",
+                _AND(
+                    key_bits_exp,
+                    hex(limb_clamp),
+                ),
+            )
+            pos += bits
+        self._endBody(nocheck=True)
+
+    # def get_bytes(self, available_bytes, index, var):
+    #     if available_bytes * 8 >= self.wordsize:
+    #         return f"{var}[{index}]"
+    #     res = []
+    #     base = f"&({var}[{index}])"
+    #     bits = [int(b) for b in "{0:03b}".format(available_bytes)]
+    #     if bits[0]:
+    #         res.append(f"({self.int_t}) (((uint32_t* ) {base})[0])")
+    #     if bits[1]:
+    #         res.append(
+    #             self._SHL_exp(
+    #                 f"({self.int_t}) (((uint16_t* ) {base})[{2*bits[0]}])", 32 * bits[0]
+    #             )
+    #         )
+    #     if bits[2]:
+    #         res.append(
+    #             self._SHL_exp(
+    #                 f"({self.int_t}) (((uint8_t* ) {base})[{2*bits[1] + 4*bits[0]}])",
+    #                 32 * bits[0] + 16 * bits[1],
+    #             )
+    #         )
+    #     return " | ".join(res)
+
+    @override
+    def unpack_and_encode_key(self) -> None:
+        if self.explicitKeyTransform:
+            nocheck = self.nocheck
+            self.nocheck = True
+            super().unpack_and_encode_key()
+            self.nocheck = nocheck
+            return
+        self._function_header(
+            "int",
+            "unpack_and_encode_key",
+            [(f"{self.field_elem_t}*", "res"), (f"const {self.int_t}*", "a")],
+        )
+        self._startBody(nocheck=True)
+        self._declare_var(name="key", typ="const uint8_t *const", val="(uint8_t *) a")
         j: int = 0
         taken: int = 0
-        for i, bits in enumerate(self.limbbits):
-            self._ASSIGN(f"res->val[{i}]", "0")
-            filled: int = 0
-            self._OREQ(
-                f"res->val[{i}]",
-                _AND(self._SHR_exp(f"a[{j}]", taken), self.limbmask(bits)),
+        clamp = self.keyClamp
+        keybitsize = self.pi if self.keysize * 8 > self.pi else self.keysize * 8
+        available_bytes = self.keysize
+        pos = 0
+        pos_byte = 0
+        try:
+            numkeylimbs: int = next(
+                i for i, x in enumerate(cumsum(self.limbbits)) if x >= keybitsize
             )
-            filled += min([self.wordsize - taken, bits])
-            taken += min([self.wordsize - taken, bits])
-            if taken == self.wordsize:
-                j += 1
-            while (
-                filled < bits
-                and j < ceil(self.pi / self.wordsize)
-                and j < ceil((self.keysize * 8) / self.wordsize)
-            ):
-                self._OREQ(
+            for i, bits in enumerate(self.limbbits[: numkeylimbs + 1]):
+                pos_byte = pos // 8
+                taken = pos % 8
+                available_bytes = self.keysize - pos_byte
+                if available_bytes < self.wordbytes:
+                    pos_byte = self.keysize - self.wordbytes
+                    taken += (self.wordbytes - available_bytes) * 8
+                key_limb = f"*((uint{self.wordsize}_t *)(key+{pos_byte}))"
+
+                key_bits_exp = self._SHR_exp(key_limb, taken)
+
+                available_bits = self.wordsize - taken
+                if available_bits < bits and available_bytes > self.wordbytes:
+                    remaining_bits = bits - available_bits
+                    key_limb = f"((uint{self.wordsize}_t) (key[{pos_byte + self.wordsize//8}]))"
+                    key_bits_exp = _OR(
+                        key_bits_exp, self._SHL_exp(key_limb, available_bits)
+                    )
+
+                limb_clamp = clamp & (2**bits - 1)
+                clamp = clamp >> bits
+                self._ASSIGN(
                     f"res->val[{i}]",
-                    _AND(self._SHL_exp(f"a[{j}]", filled), self.limbmask(bits)),
+                    _AND(
+                        key_bits_exp,
+                        hex(limb_clamp),
+                    ),
                 )
-                taken = bits - filled
-                filled += bits - filled
-                if taken >= self.wordsize:
-                    j += 1
-            if (i == len(self.limbbits) - 1) and (self.keysize * 8) % self.wordsize:
-                encshift: int = (self.keysize * 8) - sum(self.limbbits[:-1])
-                mask = (1 << encshift) - 1
-                self._ANDEQ(f"res->val[{i}]", f"{hex(min(mask, 2**(self.wordsize)-1))}")
-            if j >= ceil(self.pi / self.wordsize) or j >= ceil(
-                (self.keysize * 8) / self.wordsize
-            ):
-                break
+                pos += bits
+
+        except StopIteration:
+            pass
         self._endBody(nocheck=True)
 
     @override
@@ -264,43 +337,43 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
         self._function_header(
             "int",
             "unpack_field_elem",
-            [(f"{self.field_elem_t}*", "res"), (f"{self.int_t}*", "a")],
+            [(f"{self.field_elem_t}*", "res"), (f"const {self.int_t}*", "a")],
         )
         self._startBody(nocheck=True)
-        j: int = 0
+        self._declare_var(name="elem", typ="const uint8_t *const", val="(uint8_t *) a")
         taken: int = 0
+        available_bytes = self.buffsize
+        pos = 0
+        pos_byte = 0
         for i, bits in enumerate(self.limbbits):
-            self._ASSIGN(f"res->val[{i}]", "0")
-            filled: int = 0
-            self._OREQ(
-                f"res->val[{i}]",
-                _AND(self._SHR_exp(f"a[{j}]", taken), self.limbmask(bits)),
-            )
-            filled += min([self.wordsize - taken, bits])
-            taken += min([self.wordsize - taken, bits])
-            if taken == self.wordsize:
-                j += 1
-            while (
-                filled < bits
-                and j < ceil(self.pi / self.wordsize)
-                and j < ceil((self.buffsize * 8) / self.wordsize)
-            ):
-                self._OREQ(
-                    f"res->val[{i}]",
-                    _AND(self._SHL_exp(f"a[{j}]", filled), self.limbmask(bits)),
+            pos_byte = pos // 8
+            taken = pos % 8
+            available_bytes = self.buffsize - pos_byte
+            if available_bytes < self.wordbytes:
+                pos_byte = self.buffsize - self.wordbytes
+                taken += (self.wordbytes - available_bytes) * 8
+            elem_limb = f"*((uint{self.wordsize}_t *)(elem+{pos_byte}))"
+
+            elem_bits_exp = self._SHR_exp(elem_limb, taken)
+
+            available_bits = self.wordsize - taken
+            if available_bits < bits and available_bytes > self.wordbytes:
+                elem_limb = (
+                    f"((uint{self.wordsize}_t) (elem[{pos_byte + self.wordsize//8}]))"
                 )
-                taken = bits - filled
-                filled += bits - filled
-                if taken >= self.wordsize:
-                    j += 1
-            if (i == len(self.limbbits) - 1) and (self.buffsize * 8) % self.wordsize:
-                encshift: int = (self.buffsize * 8) - sum(self.limbbits[:-1])
-                mask = (1 << encshift) - 1
-                self._ANDEQ(f"res->val[{i}]", f"{hex(mask)}")
-            if j >= ceil(self.pi / self.wordsize) or j >= ceil(
-                (self.buffsize * 8) / self.wordsize
-            ):
-                break
+                elem_bits_exp = _OR(
+                    elem_bits_exp, self._SHL_exp(elem_limb, available_bits)
+                )
+
+            limb_mask = 2**bits - 1
+            self._ASSIGN(
+                f"res->val[{i}]",
+                _AND(
+                    elem_bits_exp,
+                    hex(limb_mask),
+                ),
+            )
+            pos += bits
         self._endBody(nocheck=True)
 
     @override
@@ -314,61 +387,76 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
         self._function_header(
             "int",
             "unpack_and_encode_field_elem",
-            [(f"{self.field_elem_t}*", "res"), (f"{self.int_t}*", "a")],
+            [(f"{self.field_elem_t}*", "res"), (f"const {self.int_t}*", "a")],
         )
         self._startBody(nocheck=True)
+        self._declare_var(name="elem", typ="const uint8_t *const", val="(uint8_t *) a")
         j: int = 0
         taken: int = 0
-        encshift: int = (self.blocksize * 8) - sum(self.limbbits[:-1])
-        if self.lowerEncode and not self.lastOnlyEnc:
-            encshift += self.encodingMSB.bit_length()
-        for i, bits in enumerate(self.limbbits):
-            encBits: int = 0
-            filled: int = 0
-            self._ASSIGN(f"res->val[{i}]", "0")
-            if self.lowerEncode and i == 0 and not self.lastOnlyEnc:
-                encBits = self.encodingMSB.bit_length()
-                self._OREQ("res->val[0]", hex(self.encodingMSB))
-            self._OREQ(
-                f"res->val[{i}]",
-                _AND(
-                    self._SHL_exp(self._SHR_exp(f"a[{j}]", taken), encBits),
-                    self.limbmask(bits),
-                ),
-            )
-            filled += min([self.wordsize - taken, bits]) + encBits
-            taken += min([self.wordsize - taken, bits]) - encBits
-            if taken == self.wordsize:
-                j += 1
-            while (
-                filled < bits
-                and j < ceil(self.pi / self.wordsize)
-                and j < ceil((self.buffsize * 8) / self.wordsize)
-                and j < ceil((8 * self.blocksize) / self.wordsize)
-            ):
-                self._OREQ(
-                    f"res->val[{i}]",
-                    _AND(self._SHL_exp(f"a[{j}]", filled), self.limbmask(bits)),
+        clamp = sum(
+            [
+                (mask & (2 ** int(bits) - 1)) * 2 ** int(exp)
+                for mask, exp, bits in zip(
+                    self.encodingMask, cumsum([0] + self.limbbits[:-1]), self.limbbits
                 )
-                taken = bits - filled
-                filled += bits - filled
-                if taken >= self.wordsize:
-                    j += 1
-            mask = self.encodingMask[i]
-            if (i == len(self.limbbits) - 1) and (self.blocksize * 8) % self.wordsize:
-                mask &= (1 << encshift) - 1
-            self._ANDEQ(f"res->val[{i}]", f"{hex(mask)}")
-            if (
-                j >= ceil(self.pi / self.wordsize)
-                or j >= ceil((self.buffsize * 8) / self.wordsize)
-                or j >= ceil((8 * self.blocksize) / self.wordsize)
-            ):
-                break
-        if not self.lowerEncode and not self.lastOnlyEnc:
-            self._OREQ(
-                f"res->val[{self.numlimbs-1}]",
-                self._SHL_exp(f"({self.int_t}){hex(self.encodingMSB)}", encshift),
+            ]
+        )
+        blockbitsize = self.pi if self.blocksize * 8 > self.pi else self.blocksize * 8
+        available_bytes = self.blocksize
+        pos = 0
+        pos_byte = 0
+        try:
+            numBlockLimbs: int = next(
+                i for i, x in enumerate(cumsum(self.limbbits)) if x > blockbitsize
             )
+            encshift: int = (self.blocksize * 8) - sum(self.limbbits[:numBlockLimbs])
+            for i, bits in enumerate(self.limbbits[: numBlockLimbs + 1]):
+                encBits = 0
+                if self.lowerEncode and not self.lastOnlyEnc:
+                    if i == 0:
+                        encBits = self.encodingMSB.bit_length()
+                        bits -= encBits
+                        encshift += self.encodingMSB.bit_length()
+                    elif i == self.numlimbs - 1:
+                        bits += encBits
+                pos_byte = pos // 8
+                taken = pos % 8
+                available_bytes = self.blocksize - pos_byte
+                if available_bytes < self.wordbytes:
+                    pos_byte = self.blocksize - self.wordbytes
+                    taken += (self.wordbytes - available_bytes) * 8
+                block_limb = f"*((uint{self.wordsize}_t *)(elem+{pos_byte}))"
+
+                block_bits_exp = self._SHR_exp(block_limb, taken)
+
+                available_bits = self.wordsize - taken
+                if available_bits < bits and available_bytes > self.wordbytes:
+                    remaining_bits = bits - available_bits
+                    block_limb = f"((uint{self.wordsize}_t) (elem[{pos_byte + self.wordsize//8}]))"
+                    block_bits_exp = _OR(
+                        block_bits_exp, self._SHL_exp(block_limb, available_bits)
+                    )
+                limb_mask = clamp & (2**bits - 1)
+                clamp = clamp >> bits
+                block_bits_exp = self._SHL_exp(
+                    _AND(
+                        block_bits_exp,
+                        hex(limb_mask),
+                    ),
+                    encBits,
+                )
+                if self.lowerEncode and not self.lastOnlyEnc and i == 0:
+                    block_bits_exp = _OR(block_bits_exp, hex(self.encodingMSB))
+                self._ASSIGN(f"res->val[{i}]", block_bits_exp)
+                pos += bits
+
+            if not self.lowerEncode and not self.lastOnlyEnc and self.encodingMSB != 0:
+                self._OREQ(
+                    f"res->val[{self.numlimbs-1}]",
+                    self._SHL_exp(f"({self.int_t}){hex(self.encodingMSB)}", encshift),
+                )
+        except StopIteration:
+            pass
         self._endBody(nocheck=True)
 
     @override
@@ -384,74 +472,88 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
             "unpack_and_encode_last_field_elem",
             [
                 (f"{self.field_elem_t}*", "res"),
-                (f"{self.int_t}*", "a"),
+                (f"const {self.int_t}*", "a"),
                 ("size_t", "size"),
             ],
         )
         self._startBody(nocheck=True)
-        encshift: int = (self.blocksize * 8) - sum(self.limbbits[:-1])
-        if self.lowerEncode:
-            encshift += self.encodingMSB.bit_length()
         self._declare_var(f"{self.int_t}", "tmp[BUFFSIZE]", "{0}")
         self._CALL("memcpy", ["tmp", "a", "size"], OFLAG=None)
         if not self.lowerEncode:
             self._IF(f"size < {self.blocksize}")
             self._ASSIGN("((uint8_t*)tmp)[size]", f"{hex(self.encodingMSB)}")
             self._ENDIF()
-
+        self._declare_var(
+            name="elem", typ="const uint8_t *const", val="(uint8_t *) tmp"
+        )
         j: int = 0
         taken: int = 0
-        for i, bits in enumerate(self.limbbits):
-            encBits: int = 0
-            filled: int = 0
-            self._ASSIGN(f"res->val[{i}]", "0")
-            if self.lowerEncode and i == 0:
-                encBits = self.encodingMSB.bit_length()
-                self._OREQ("res->val[0]", hex(self.encodingMSB))
-            filled: int = 0
-            self._OREQ(
-                f"res->val[{i}]",
-                _AND(
-                    self._SHL_exp(self._SHR_exp(f"tmp[{j}]", taken), encBits),
-                    self.limbmask(bits),
-                ),
-            )
-            filled += min([self.wordsize - taken, bits]) + encBits
-            taken += min([self.wordsize - taken, bits]) - encBits
-            if taken == self.wordsize:
-                j += 1
-            while (
-                filled < bits
-                and j < ceil(self.pi / self.wordsize)
-                and j < ceil((self.buffsize * 8) / self.wordsize)
-                and j < ceil((8 * self.blocksize) / self.wordsize)
-            ):
-                self._OREQ(
-                    f"res->val[{i}]",
-                    _AND(self._SHL_exp(f"tmp[{j}]", filled), self.limbmask(bits)),
+        clamp = sum(
+            [
+                (mask & (2 ** int(bits) - 1)) * 2 ** int(exp)
+                for mask, exp, bits in zip(
+                    self.encodingMask, cumsum([0] + self.limbbits[:-1]), self.limbbits
                 )
-                taken = bits - filled
-                filled += bits - filled
-                if taken >= self.wordsize:
-                    j += 1
-            mask: int = self.encodingMask[i]
-            if (i == len(self.limbbits) - 1) and (self.blocksize * 8) % self.wordsize:
-                mask &= (1 << encshift) - 1
-            self._ANDEQ(f"res->val[{i}]", f"{hex(mask)}")
-            if (
-                j >= ceil(self.pi / self.wordsize)
-                or j >= ceil((self.buffsize * 8) / self.wordsize)
-                or j >= ceil((8 * self.blocksize) / self.wordsize)
-            ):
-                break
-
-        if not self.lowerEncode:
-            self._IF(f"size == {self.blocksize}")
-            self._OREQ(
-                f"res->val[{self.numlimbs-1}]",
-                self._SHL_exp(f"({self.int_t}){hex(self.encodingMSB)}", encshift),
+            ]
+        )
+        blockbitsize = self.pi if self.blocksize * 8 > self.pi else self.blocksize * 8
+        available_bytes = self.blocksize
+        pos = 0
+        pos_byte = 0
+        try:
+            numBlockLimbs: int = next(
+                i for i, x in enumerate(cumsum(self.limbbits)) if x > blockbitsize
             )
-            self._ENDIF()
+            encshift: int = (self.blocksize * 8) - sum(self.limbbits[:numBlockLimbs])
+            for i, bits in enumerate(self.limbbits[: numBlockLimbs + 1]):
+                encBits = 0
+                if self.lowerEncode:
+                    if i == 0:
+                        encBits = self.encodingMSB.bit_length()
+                        bits -= encBits
+                        encshift += self.encodingMSB.bit_length()
+                    elif i == self.numlimbs - 1:
+                        bits += encBits
+                pos_byte = pos // 8
+                taken = pos % 8
+                available_bytes = self.blocksize - pos_byte
+                if available_bytes < self.wordbytes:
+                    pos_byte = self.blocksize - self.wordbytes
+                    taken += (self.wordbytes - available_bytes) * 8
+                block_limb = f"*((uint{self.wordsize}_t *)(elem+{pos_byte}))"
+
+                block_bits_exp = self._SHR_exp(block_limb, taken)
+
+                available_bits = self.wordsize - taken
+                if available_bits < bits and available_bytes > self.wordbytes:
+                    remaining_bits = bits - available_bits
+                    block_limb = f"((uint{self.wordsize}_t) (elem[{pos_byte + self.wordsize//8}]))"
+                    block_bits_exp = _OR(
+                        block_bits_exp, self._SHL_exp(block_limb, available_bits)
+                    )
+                limb_mask = clamp & (2**bits - 1)
+                clamp = clamp >> bits
+                block_bits_exp = self._SHL_exp(
+                    _AND(
+                        block_bits_exp,
+                        hex(limb_mask),
+                    ),
+                    encBits,
+                )
+                if self.lowerEncode and i == 0:
+                    block_bits_exp = _OR(block_bits_exp, hex(self.encodingMSB))
+                self._ASSIGN(f"res->val[{i}]", block_bits_exp)
+                pos += bits
+
+            if not self.lowerEncode and self.encodingMSB != 0:
+                self._IF(f"size == {self.blocksize}")
+                self._OREQ(
+                    f"res->val[{self.numlimbs-1}]",
+                    self._SHL_exp(f"({self.int_t}){hex(self.encodingMSB)}", encshift),
+                )
+                self._ENDIF()
+        except StopIteration:
+            pass
         self._endBody(nocheck=True)
 
     @override
@@ -461,8 +563,8 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
             "field_add",
             [
                 (f"{self.field_elem_t}*", "res"),
-                (f"{self.field_elem_t}*", "a"),
-                (f"{self.field_elem_t}*", "b"),
+                (f"const {self.field_elem_t}*", "a"),
+                (f"const {self.field_elem_t}*", "b"),
             ],
         )
         self._startBody()
@@ -479,8 +581,8 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
             "field_add_reduce",
             [
                 (f"{self.field_elem_t}*", "res"),
-                (f"{self.field_elem_t}*", "a"),
-                (f"{self.field_elem_t}*", "b"),
+                (f"const {self.field_elem_t}*", "a"),
+                (f"const {self.field_elem_t}*", "b"),
             ],
         )
         self._startBody()
@@ -497,8 +599,8 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
             "field_add_mix",
             [
                 (f"{self.dfield_elem_t}*", "res"),
-                (f"{self.dfield_elem_t}*", "a"),
-                (f"{self.field_elem_t}*", "b"),
+                (f"const {self.dfield_elem_t}*", "a"),
+                (f"const {self.field_elem_t}*", "b"),
             ],
         )
         self._startBody()
@@ -515,8 +617,8 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
             "field_add_dbl",
             [
                 (f"{self.dfield_elem_t}*", "res"),
-                (f"{self.dfield_elem_t}*", "a"),
-                (f"{self.dfield_elem_t}*", "b"),
+                (f"const {self.dfield_elem_t}*", "a"),
+                (f"const {self.dfield_elem_t}*", "b"),
             ],
         )
         self._startBody()
@@ -535,8 +637,8 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
             "field_mul",
             [
                 (f"{self.field_elem_t}*", "res"),
-                (f"{self.field_elem_t}*", "a"),
-                (f"{self.field_elem_t}*", "b"),
+                (f"const {self.field_elem_t}*", "a"),
+                (f"const {self.field_elem_t}*", "b"),
             ],
         )
         self._startBody()
@@ -600,11 +702,13 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
         self._MUL("c", "c", self.delta, long_return=doublecarryover)
         if doublecarryover:
             self._ADD("d[0]", "res->val[0]", "c", res_type=self.long_t)
-            self._ASSIGN("c", self._SHR_exp("d[0]", self.limbbits[0]))
+            # self._ASSIGN("c", self._SHR_exp("d[0]", self.limbbits[0]))
+            self._SHR("c", "d[0]", self.limbbits[0], carrysize)
             self._ASSIGN("res->val[0]", _AND("d[0]", self.limbmask(self.limbbits[0])))
         else:
             self._INC("res->val[0]", "c", out_type=self.int_t)
-            self._ASSIGN("c", self._SHR_exp("res->val[0]", self.limbbits[0]))
+            # self._ASSIGN("c", self._SHR_exp("res->val[0]", self.limbbits[0]))
+            self._SHR("c", "res->val[0]", self.limbbits[0], carrysize)
             self._ASSIGN(
                 "res->val[0]", _AND("res->val[0]", self.limbmask(self.limbbits[0]))
             )
@@ -621,8 +725,8 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
             "field_mul_no_carry",
             [
                 (f"{self.dfield_elem_t}*", "res"),
-                (f"{self.field_elem_t}*", "a"),
-                (f"{self.field_elem_t}*", "b"),
+                (f"const {self.field_elem_t}*", "a"),
+                (f"const {self.field_elem_t}*", "b"),
             ],
         )
         self._startBody()
@@ -664,6 +768,69 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
             print(file=self.file)
         self._endBody()
 
+    # def field_mul_asym_no_carry(self) -> None:
+    #     self._function_header(
+    #         "int",
+    #         "field_mul_asym_no_carry",
+    #         [
+    #             (f"{self.dfield_elem_t}*", "res"),
+    #             (f"const {self.field_elem_t}*", "a"),
+    #             (f"const {self.field_elem_t}*", "b"),
+    #         ],
+    #     )
+    #     self._startBody()
+    #     self._declare_var(f"{self.long_t}", "acc")
+    #     if self.need_double_carry_temp():
+    #         self._declare_var(f"{self.long_t}", "t")
+    #     else:
+    #         self._declare_var(f"{self.int_t}", "t")
+    #     num_packed_limbs = ceil(self.blocksize/self.wordsize)
+    #     base_delta = self.wordsize*8 - self.limbbits[0]
+    #     for k in range(0, self.numlimbs):
+    #         self._ASSIGN(f"res->val[{k}]", "0")
+    #     for k in range(0, self.numlimbs):
+    #         for i in range(0, self.numlimbs):
+    #             for j in range(0, self.numlimbs):
+    #                 kk: int = sum(self.limbbits[0:i]) + sum(self.limbbits[0:j])
+    #                 if kk == sum(self.limbbits[0:k]):
+    #                     b_bitsize = 8*self.blocksize - (num_packed_limbs-1)*self.wordsize*8
+    #                     self._MUL("acc", f"a->val[{i}]", f"b->val[{j}]")
+    #                     res_size = self.limbbits[i] + b_bitsize + base_delta
+    #                     if res_size > self.wordsize*2*8 - (self.numlimbs-1):
+    #                         ovflw_amount = res_size + (self.numlimbs-1) - self.wordsize*2*8
+    #                         self._INC(f"res->val[{k+1}]",
+    #                                   self._SHR_exp(
+    #                                       "acc", self.wordsize*2*8 -
+    #                                   )
+    #                                    "acc", out_type=self.long_t)
+    #                     else:
+    #                         self._SHL("acc", "acc", base_delta, wordsize=self.wordsize*2)
+    #                     self._INC(f"res->val[{k}]", "acc", out_type=self.long_t)
+    #                 elif (
+    #                     len(
+    #                         [
+    #                             x
+    #                             for x in cumsum([0] + self.limbbits)
+    #                             if x <= (kk - self.pi)
+    #                         ]
+    #                     )
+    #                     == k + 1
+    #                 ):
+    #                     self._MUL(
+    #                         "t",
+    #                         f"b->val[{j}]",
+    #                         f"{self._SHL_exp(self.delta, kk-self.pi - sum(self.limbbits[0:k]))}",
+    #                         long_return=self.need_double_carry_temp(),
+    #                     )
+    #                     self._MUL(
+    #                         "acc",
+    #                         f"a->val[{i}]",
+    #                         "t",
+    #                     )
+    #                     self._INC(f"res->val[{k}]", "acc", out_type=self.long_t)
+    #         print(file=self.file)
+    #     self._endBody()
+
     @override
     def field_mul_reduce(self) -> None:
         self._function_header(
@@ -671,8 +838,8 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
             "field_mul_reduce",
             [
                 (f"{self.field_elem_t}*", "res"),
-                (f"{self.field_elem_t}*", "a"),
-                (f"{self.field_elem_t}*", "b"),
+                (f"const {self.field_elem_t}*", "a"),
+                (f"const {self.field_elem_t}*", "b"),
             ],
         )
         self._startBody()
@@ -716,13 +883,15 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
         self._MUL("c", "c", self.delta, long_return=doublecarryover)
         if doublecarryover:
             self._ADD("a->val[0]", "res->val[0]", "c", res_type=self.long_t)
-            self._ASSIGN("c", self._SHR_exp("a->val[0]", self.limbbits[0]))
+            # self._ASSIGN("c", self._SHR_exp("a->val[0]", self.limbbits[0]))
+            self._SHR("c", "a->val[0]", self.limbbits[0], carrysize)
             self._ASSIGN(
                 "res->val[0]", _AND("a->val[0]", self.limbmask(self.limbbits[0]))
             )
         else:
             self._INC("res->val[0]", "c", out_type=self.int_t)
-            self._ASSIGN("c", self._SHR_exp("res->val[0]", self.limbbits[0]))
+            # self._ASSIGN("c", self._SHR_exp("res->val[0]", self.limbbits[0]))
+            self._SHR("c", "res->val[0]", self.limbbits[0], carrysize)
             self._ASSIGN(
                 "res->val[0]", _AND("res->val[0]", self.limbmask(self.limbbits[0]))
             )
@@ -758,7 +927,8 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
         )
         self._MUL("c", "c", self.delta, long_return=False)
         self._INC("res->val[0]", "c", out_type=self.int_t)
-        self._ASSIGN("c", self._SHR_exp("res->val[0]", self.limbbits[0]))
+        # self._ASSIGN("c", self._SHR_exp("res->val[0]", self.limbbits[0]))
+        self._SHR("c", "res->val[0]", self.limbbits[0], carrysize)
         self._ASSIGN(
             "res->val[0]", _AND("res->val[0]", self.limbmask(self.limbbits[0]))
         )
@@ -770,7 +940,7 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
         self._function_header(
             "int",
             "reduce",
-            [(f"{self.field_elem_t}*", "res"), (f"{self.field_elem_t}*", "a")],
+            [(f"{self.field_elem_t}*", "res"), (f"const {self.field_elem_t}*", "a")],
         )
         self._startBody()
         self._declare_var(self.field_elem_t, "t")
@@ -812,98 +982,87 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
         self._function_header(
             "int",
             "field_sqr",
-            [(f"{self.field_elem_t}*", "res"), (f"{self.field_elem_t}*", "a")],
+            [(f"{self.field_elem_t}*", "res"), (f"const {self.field_elem_t}*", "a")],
         )
         self._startBody()
-        self._CALL("field_mul", ["res", "a", "a"], OFLAG=not self.nocheck)
-        # FIXME!
-        # if doublecarry:
-        #     carrysize: int = self.wordsize * 2
-        # else:
-        #     carrysize = self.wordsize
-        # self._declare_var(f"uint{carrysize}_t", "c")
-        # self._declare_var(f"{self.long_t}", "acc")
-        # self._declare_var(f"{self.long_t}", f"d[{self.numlimbs}]", "{0}")
-        # counters: List[Counter[FrozenSet[int]]] = []
-        # for k in range(0, self.numlimbs):
-        #     c: Counter[FrozenSet[int]] = Counter()
-        #     for i in range(0, self.numlimbs):
-        #         for j in range(0, self.numlimbs):
-        #             kk = sum(self.limbbits[0:i]) + sum(self.limbbits[0:j])
-        #             if kk == sum(self.limbbits[0:k]):
-        #                 c.update({frozenset({i, j})})
-        #             elif (
-        #                 len(
-        #                     [
-        #                         x
-        #                         for x in cumsum([0] + self.limbbits)
-        #                         if x <= (kk - self.pi)
-        #                     ]
-        #                 )
-        #                 == k + 1
-        #             ):
-        #                 c.update({frozenset({i, j})})
-        #     counters.append(c)
-
-        # for k, c in enumerate(counters):
-        #     for s, cnt in c.items():
-        #         if len(s) == 1:
-        #             i: int = set(s).pop()
-        #             j: int = i
-        #         else:
-        #             i, j = s
-        #         kk: int = sum(self.limbbits[0:i]) + sum(self.limbbits[0:j])
-        #         if kk == sum(self.limbbits[0:k]):
-        #             self._MUL(
-        #                 "acc",
-        #                 f"a->val[{i}]",
-        #                 f"a->val[{j}]" + (f" * {cnt}" if cnt > 1 else ""),
-        #             )
-        #             self._INC(f"d[{k}]", "acc")
-        #         elif (
-        #             len([x for x in cumsum([0] + self.limbbits) if x <= (kk - self.pi)])
-        #             == k + 1
-        #         ):
-        #             self._MUL(
-        #                 "acc",
-        #                 f"a->val[{i}]",
-        #                 f"a->val[{j}]"
-        #                 + (f" * {cnt} " if cnt > 1 else " ")
-        #                 + f"* {self._SHL_exp(self.delta, kk-self.pi - sum(self.limbbits[0:k]))}",
-        #             )
-        #             self._INC(f"d[{k}]", "acc")
-        #     print(file=self.file)
-        # print(file=self.file)
-        # for i in range(0, self.numlimbs - 1):
-        #     self._SHR("c", f"d[{i}]", self.limbbits[i], carrysize)
-        #     self._ASSIGN(
-        #         f"res->val[{i}]",
-        #         _AND(_LO(f"d[{i}]", self.wordsize), self.limbmask(self.limbbits[i])),
-        #     )
-        #     self._INCLO(f"d[{i+1}]", "c")
-        # self._SHR("c", f"d[{self.numlimbs-1}]", self.limbbits[-1], carrysize)
-        # self._ASSIGN(
-        #     f"res->val[{self.numlimbs-1}]",
-        #     _AND(
-        #         _LO(f"d[{self.numlimbs-1}]", self.wordsize),
-        #         self.limbmask(self.limbbits[-1]),
-        #     ),
-        # )
-        # self._MUL("c", "c", self.delta, long_return=doublecarryover)
-        # if doublecarryover:
-        #     self._ADD("d[0]", "res->val[0]", "c")
-        #     self._ASSIGN("c", self._SHR_exp("d[0]", self.limbbits[0]))
-        #     self._ASSIGN("res->val[0]", _AND("d[0]", self.limbmask(self.limbbits[0])))
-        # else:
-        #     self._INC("res->val[0]", "c")
-        #     self._ASSIGN("c", self._SHR_exp("res->val[0]", self.limbbits[0]))
-        #     self._ASSIGN(
-        #         "res->val[0]", _AND("res->val[0]", self.limbmask(self.limbbits[0]))
-        #     )
-        # if self.numlimbs > 1:
-        #     self._INC("res->val[1]", "c")
-        # else:
-        #     self._INC("res->val[0]", "c")
+        if doublecarry:
+            carrysize: int = self.wordsize * 2
+        else:
+            carrysize = self.wordsize
+        self._declare_var(f"{self.long_t}", "acc")
+        self._declare_var(f"{self.long_t}", f"d[{self.numlimbs}]", "{0}")
+        self._declare_var(f"uint{carrysize}_t", "c")
+        if self.need_double_carry_temp():
+            self._declare_var(f"{self.long_t}", "t")
+        else:
+            self._declare_var(f"{self.int_t}", "t")
+        for k in range(0, self.numlimbs):
+            for i in range(0, self.numlimbs):
+                for j in range(i, self.numlimbs):
+                    kk: int = sum(self.limbbits[0:i]) + sum(self.limbbits[0:j])
+                    if kk == sum(self.limbbits[0:k]):
+                        self._MUL("acc", f"a->val[{i}]", f"a->val[{j}]")
+                        self._INC(f"d[{k}]", "acc", out_type=self.long_t)
+                        if i != j:
+                            self._INC(f"d[{k}]", "acc", out_type=self.long_t)
+                    elif (
+                        len(
+                            [
+                                x
+                                for x in cumsum([0] + self.limbbits)
+                                if x <= (kk - self.pi)
+                            ]
+                        )
+                        == k + 1
+                    ):
+                        self._MUL(
+                            "t",
+                            f"a->val[{j}]",
+                            f"{self._SHL_exp(self.delta, kk-self.pi - sum(self.limbbits[0:k]))}",
+                            long_return=self.need_double_carry_temp(),
+                        )
+                        self._MUL(
+                            "acc",
+                            f"a->val[{i}]",
+                            "t",
+                        )
+                        self._INC(f"d[{k}]", "acc", out_type=self.long_t)
+                        if i != j:
+                            self._INC(f"d[{k}]", "acc", out_type=self.long_t)
+            print(file=self.file)
+        print(file=self.file)
+        for i in range(0, self.numlimbs - 1):
+            self._SHR("c", f"d[{i}]", self.limbbits[i], carrysize)
+            self._ASSIGN(
+                f"res->val[{i}]",
+                _AND(_LO(f"d[{i}]", self.wordsize), self.limbmask(self.limbbits[i])),
+            )
+            self._INCLO(f"d[{i+1}]", "c", out_type=self.long_t)
+        self._SHR("c", f"d[{self.numlimbs-1}]", self.limbbits[-1], carrysize)
+        self._ASSIGN(
+            f"res->val[{self.numlimbs-1}]",
+            _AND(
+                _LO(f"d[{self.numlimbs-1}]", self.wordsize),
+                self.limbmask(self.limbbits[-1]),
+            ),
+        )
+        self._MUL("c", "c", self.delta, long_return=doublecarryover)
+        if doublecarryover:
+            self._ADD("d[0]", "res->val[0]", "c", res_type=self.long_t)
+            # self._ASSIGN("c", self._SHR_exp("d[0]", self.limbbits[0]))
+            self._SHR("c", "d[0]", self.limbbits[0], carrysize)
+            self._ASSIGN("res->val[0]", _AND("d[0]", self.limbmask(self.limbbits[0])))
+        else:
+            self._INC("res->val[0]", "c", out_type=self.int_t)
+            # self._ASSIGN("c", self._SHR_exp("res->val[0]", self.limbbits[0]))
+            self._SHR("c", "res->val[0]", self.limbbits[0], carrysize)
+            self._ASSIGN(
+                "res->val[0]", _AND("res->val[0]", self.limbmask(self.limbbits[0]))
+            )
+        if self.numlimbs > 1:
+            self._INC("res->val[1]", "c", out_type=self.int_t)
+        else:
+            self._INC("res->val[0]", "c", out_type=self.int_t)
         self._endBody()
 
     @override
@@ -911,7 +1070,7 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
         self._function_header(
             "int",
             "field_sqr_reduce",
-            [(f"{self.field_elem_t}*", "res"), (f"{self.field_elem_t}*", "a")],
+            [(f"{self.field_elem_t}*", "res"), (f"const {self.field_elem_t}*", "a")],
         )
         self._startBody()
         self._declare_var(self.field_elem_t, "tmp")
@@ -924,62 +1083,49 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
         self._function_header(
             "int",
             "field_sqr_no_carry",
-            [(f"{self.dfield_elem_t}*", "res"), (f"{self.field_elem_t}*", "a")],
+            [(f"{self.dfield_elem_t}*", "res"), (f"const {self.field_elem_t}*", "a")],
         )
         self._startBody()
-        self._CALL("field_mul_no_carry", ["res", "a", "a"], OFLAG=not self.nocheck)
-        # FIXME!
-        # self._declare_var(f"{self.long_t}", "acc")
-        # counters: List[Counter[FrozenSet[int]]] = []
-        # for k in range(0, self.numlimbs):
-        #     c: Counter[FrozenSet[int]] = Counter()
-        #     for i in range(0, self.numlimbs):
-        #         for j in range(0, self.numlimbs):
-        #             kk: int = sum(self.limbbits[0:i]) + sum(self.limbbits[0:j])
-        #             if kk == sum(self.limbbits[0:k]):
-        #                 c.update({frozenset({i, j})})
-        #             elif (
-        #                 len(
-        #                     [
-        #                         x
-        #                         for x in cumsum([0] + self.limbbits)
-        #                         if x <= (kk - self.pi)
-        #                     ]
-        #                 )
-        #                 == k + 1
-        #             ):
-        #                 c.update({frozenset({i, j})})
-        #     counters.append(c)
-
-        # for k, c in enumerate(counters):
-        #     self._ASSIGN(f"res->val[{k}]", "0")
-        #     for s, cnt in c.items():
-        #         if len(s) == 1:
-        #             i: int = set(s).pop()
-        #             j: int = i
-        #         else:
-        #             i, j = s
-        #         kk = sum(self.limbbits[0:i]) + sum(self.limbbits[0:j])
-        #         if kk == sum(self.limbbits[0:k]):
-        #             self._MUL(
-        #                 "acc",
-        #                 f"a->val[{i}]",
-        #                 f"a->val[{j}]" + (f" * {cnt}" if cnt > 1 else ""),
-        #             )
-        #             self._INC(f"res->val[{k}]", "acc")
-        #         elif (
-        #             len([x for x in cumsum([0] + self.limbbits) if x <= (kk - self.pi)])
-        #             == k + 1
-        #         ):
-        #             self._MUL(
-        #                 "acc",
-        #                 f"a->val[{i}]",
-        #                 f"a->val[{j}]"
-        #                 + (f" * {cnt} " if cnt > 1 else " ")
-        #                 + f"* {self._SHL_exp(self.delta, kk-self.pi - sum(self.limbbits[0:k]))}",
-        #             )
-        #             self._INC(f"res->val[{k}]", "acc")
-        #     print(file=self.file)
+        self._declare_var(f"{self.long_t}", "acc")
+        if self.need_double_carry_temp():
+            self._declare_var(f"{self.long_t}", "t")
+        else:
+            self._declare_var(f"{self.int_t}", "t")
+        for k in range(0, self.numlimbs):
+            self._ASSIGN(f"res->val[{k}]", "0")
+            for i in range(0, self.numlimbs):
+                for j in range(i, self.numlimbs):
+                    kk: int = sum(self.limbbits[0:i]) + sum(self.limbbits[0:j])
+                    if kk == sum(self.limbbits[0:k]):
+                        self._MUL("acc", f"a->val[{i}]", f"a->val[{j}]")
+                        self._INC(f"res->val[{k}]", "acc", out_type=self.long_t)
+                        if i != j:
+                            self._INC(f"res->val[{k}]", "acc", out_type=self.long_t)
+                    elif (
+                        len(
+                            [
+                                x
+                                for x in cumsum([0] + self.limbbits)
+                                if x <= (kk - self.pi)
+                            ]
+                        )
+                        == k + 1
+                    ):
+                        self._MUL(
+                            "t",
+                            f"a->val[{j}]",
+                            f"{self._SHL_exp(self.delta, kk-self.pi - sum(self.limbbits[0:k]))}",
+                            long_return=self.need_double_carry_temp(),
+                        )
+                        self._MUL(
+                            "acc",
+                            f"a->val[{i}]",
+                            "t",
+                        )
+                        self._INC(f"res->val[{k}]", "acc", out_type=self.long_t)
+                        if i != j:
+                            self._INC(f"res->val[{k}]", "acc", out_type=self.long_t)
+            print(file=self.file)
         self._endBody()
 
     @override
@@ -1082,11 +1228,19 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
             self._declare_var("int", "OFLAG", 0)
 
     @override
-    def _endBody(self, nocheck=False) -> None:
-        if not (self.nocheck or nocheck):
-            print(" " * self.tabdepth + "return OFLAG;", file=self.file)
+    def _endBody(self, nocheck=False, retVal=None) -> None:
+        if retVal is not None:
+            if nocheck:
+                print(" " * self.tabdepth + f"return {retVal};", file=self.file)
+            else:
+                raise ValueError(
+                    "Can only return values for function that are not checked for overflow"
+                )
         else:
-            print(" " * self.tabdepth + "return 0;", file=self.file)
+            if not (self.nocheck or nocheck):
+                print(" " * self.tabdepth + "return OFLAG;", file=self.file)
+            else:
+                print(" " * self.tabdepth + "return 0;", file=self.file)
         super()._endBody()
 
     def unified_api(self) -> None:
@@ -1124,6 +1278,21 @@ class CrandallArithmeticGenerator(ArithmeticGenerator):
         print(
             "#define UNPACK_PC_FIELD_ELEM(...)\\\n"
             + "  GET_MACRO(__VA_ARGS__,UNPACK_PC_FIELD_ELEM_ARRAY,UNPACK_PC_FIELD_ELEM_SINGLE)(__VA_ARGS__)",
+            file=self.file,
+        )
+        print(
+            "#define UNPACK_AND_ENCODE_PC_KEY_SINGLE(name,buff)\\\n"
+            + "  unpack_and_encode_key(&NOT_PRECOMPUTED(name), (baseint_t *) buff);",
+            file=self.file,
+        )
+        print(
+            "#define UNPACK_AND_ENCODE_PC_KEY_ARRAY(name,buff,index)\\\n"
+            + "  unpack_and_encode_key(&NOT_PRECOMPUTED(name)[index], (baseint_t *) buff)",
+            file=self.file,
+        )
+        print(
+            "#define UNPACK_AND_ENCODE_PC_KEY(...)\\\n"
+            + "  GET_MACRO(__VA_ARGS__,UNPACK_AND_ENCODE_PC_KEY_ARRAY,UNPACK_AND_ENCODE_PC_KEY_SINGLE)(__VA_ARGS__)",
             file=self.file,
         )
         print(

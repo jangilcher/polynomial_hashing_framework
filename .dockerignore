@@ -1,0 +1,13 @@
+asm/
+bin/
+bench/
+docker/
+hacl_include/
+lib/
+obj/
+results/
+rijndael_aead/asm
+rijndael_aead/bin
+rijndael_aead/obj
+rijndael_aead/bench
+**/__pycache__

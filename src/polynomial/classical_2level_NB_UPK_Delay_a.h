@@ -28,6 +28,7 @@
 void classical_2level_NB_UPK_Delay_a(unsigned char *out,
                                      const unsigned char *in,
                                      unsigned long long inlen,
-                                     const unsigned char *key);
+                                     const unsigned char *key,
+                                     unsigned long long keylen);
 
 #endif

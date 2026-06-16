@@ -1,6 +1,7 @@
 // MIT License
 //
 // Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+//               2025 Jan Gilcher, Jérôme Govinden
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,4 +33,5 @@ void identity_transform(uint8_t *out, size_t out_len, const uint8_t *in,
                         size_t in_len) {
     size_t min_len = in_len >= out_len ? out_len : in_len;
     memcpy(out, in, min_len);
+    memset(out + min_len, 0, out_len - min_len);
 }

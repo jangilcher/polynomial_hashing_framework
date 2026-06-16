@@ -28,6 +28,7 @@
 void classical_Horner_PK_1B_Delay_a_OKC_1743(unsigned char *out,
                                              const unsigned char *in,
                                              unsigned long long inlen,
-                                             const unsigned char *key);
+                                             const unsigned char *key,
+                                             unsigned long long keylen);
 
 #endif

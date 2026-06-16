@@ -1,6 +1,7 @@
 # MIT License
 #
 # Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+#               2025 Jan Gilcher, Jérôme Govinden
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -183,10 +184,27 @@ class CrandallFieldElemBounds:
 
 
 if __name__ == "__main__":
-    x = CrandallFieldElemBounds(150, 3, 30, 5, 32)
+    x = CrandallFieldElemBounds(116, 3, 58, 2, 64)
     dlimbs, slimbs, add_bounds, c, its, fp = x.findFixpoint()
+    print("Poly1163")
     print(f"Iterations: {its}")
     print(f"Fixpoint: {fp}")
-    print(f"Carry bounds satisfied: {x.check_carry_bound(slimbs,c, True)}")
+    print(f"Carry bounds satisfied: {x.check_carry_bound(slimbs,c, False)}")
+    print(f"Limb bounds satisfied: {x.check_dlimb_bound(dlimbs)}")
+    print(f"Addition limb bounds: {x.check_dlimb_bound(add_bounds)}")
+    x = CrandallFieldElemBounds(116, 3, 27, 4, 32)
+    dlimbs, slimbs, add_bounds, c, its, fp = x.findFixpoint()
+    print("Poly1163_32")
+    print(f"Iterations: {its}")
+    print(f"Fixpoint: {fp}")
+    print(f"Carry bounds satisfied: {x.check_carry_bound(slimbs,c, False)}")
+    print(f"Limb bounds satisfied: {x.check_dlimb_bound(dlimbs)}")
+    print(f"Addition limb bounds: {x.check_dlimb_bound(add_bounds)}")
+    x = CrandallFieldElemBounds(122, 3, 25, 5, 32, lambP=22)
+    dlimbs, slimbs, add_bounds, c, its, fp = x.findFixpoint()
+    print("Poly1223_32")
+    print(f"Iterations: {its}")
+    print(f"Fixpoint: {fp}")
+    print(f"Carry bounds satisfied: {x.check_carry_bound(slimbs,c, False)}")
     print(f"Limb bounds satisfied: {x.check_dlimb_bound(dlimbs)}")
     print(f"Addition limb bounds: {x.check_dlimb_bound(add_bounds)}")

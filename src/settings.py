@@ -1,6 +1,7 @@
 # MIT License
 #
 # Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+#               2025 Jan Gilcher, Jérôme Govinden
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,6 +21,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import getopt
+from pathlib import Path
+import sys
 from typing import Optional
 
 
@@ -43,6 +47,7 @@ class Settings:
         show_plots: bool = False,
         check_overflow: bool = True,
         test_arith: bool = True,
+        test_hash: bool = True,
         convert_only: bool = False,
         convert: bool = False,
         ctgrind: bool = False,
@@ -50,12 +55,19 @@ class Settings:
         latex: bool = False,
         numtests: int = 1000,
         full_logs: bool = False,
+        fontsize: int = 22,
+        plot_y_cutoff: int = 5,
+        bench_dir=Path("bench"),
+        plot_dir=Path("plots"),
+        test_steps: int = 1,
+        fail_fast: bool = False,
     ) -> None:
         self.build: bool = build
         self.bench: bool = bench
         self.plot: bool = plot
         self.test: bool = test
         self.test_arith: bool = test_arith
+        self.test_hash: bool = test_hash
         self.verbose: bool = verbose
         self.tune: bool = tune
         self.debug: bool = debug
@@ -72,8 +84,14 @@ class Settings:
         self.ctgrind: bool = ctgrind
         self.ctgrind_bin: str = ctgrind_bin
         self.latex: bool = latex
+        self.fontsize: int = fontsize
         self.numtests: int = numtests
         self.full_logs: bool = full_logs
+        self.plot_y_cutoff: int = plot_y_cutoff
+        self.bench_dir: Path = bench_dir
+        self.plot_dir: Path = plot_dir
+        self.test_steps: int = test_steps
+        self.fail_fast: bool = fail_fast
         if includes is None:
             self.includes: list[str] = []
         else:
@@ -96,10 +114,57 @@ class Settings:
         res += f"sage = {self.sage}\n"
         res += f"show_plots = {self.show_plots}\n"
         res += f"check_overflow = {self.check_overflow}\n"
-        res += f"includes = {self.includes}"
-        res += f"latex = {self.latex}"
+        res += f"includes = {self.includes}\n"
+        res += f"latex = {self.latex}\n"
+        res += f"fontsize = {self.fontsize}\n"
+        res += f"plot_y_cutoff = {self.plot_y_cutoff}\n"
+        res += f"bench_dir = {self.bench_dir}"
+        res += f"plot_dir = {self.plot_dir}"
+        res += f"test_steps = {self.test_steps}"
+        res += f"fail_fast = {self.fail_fast}"
         res = f"{{{res}}}"
         return res
+
+    @staticmethod
+    def get_Settings() -> tuple["Settings", list[str]]:
+        opts, config_files = getopt.getopt(
+            sys.argv[1:],
+            "",
+            [
+                "help",
+                "no_build",
+                "no_bench",
+                "no_plot",
+                "no_test",
+                "verbose",
+                "tune",
+                "debug",
+                "plot_compare_only",
+                "no_plot_titles",
+                "show_plots",
+                "check_overflow",
+                "no_test_arith",
+                "no_test_hash",
+                "convert_only",
+                "convert",
+                "latex",
+                "full_logs",
+                "ctgrind",
+                "fail_fast",
+                "ctgrind_bin=",
+                "iterations=",
+                "max_messagesize=",
+                "stepsize=",
+                "include=",
+                "numtests=",
+                "fontsize=",
+                "plot_y_cutoff=",
+                "bench_dir=",
+                "plot_dir=",
+                "test_steps=",
+            ],
+        )
+        return Settings.from_options(opts), config_files
 
     @staticmethod
     def from_options(opts: list[tuple[str, str]]) -> "Settings":
@@ -117,11 +182,29 @@ class Settings:
             show_plots="--show_plots" in options,
             check_overflow="--check_overflow" in options,
             test_arith="--no_test_arith" not in options,
+            test_hash="--no_test_hash" not in options,
             convert_only="--convert_only" in options,
             convert="--convert" in options,
             latex="--latex" in options,
             full_logs="--full_logs" in options,
+            fail_fast="--fail_fast" in options,
         )
+
+        if "--fontsize" in options:
+            try:
+                idx: int = options.index("--fontsize")
+                settings.fontsize = int(opts[idx][1])
+                settings.latex = True
+            except ValueError:
+                print("--fontsize should be an integer")
+                exit(-1)
+        if "--test_steps" in options:
+            try:
+                idx: int = options.index("--test_steps")
+                settings.iterations = int(opts[idx][1])
+            except ValueError:
+                print("--test_steps should be an integer")
+                exit(-1)
         if "--iterations" in options:
             try:
                 idx: int = options.index("--iterations")
@@ -161,4 +244,31 @@ class Settings:
             except ValueError:
                 print("--numtests should be an integer")
                 exit(-1)
+        if "--plot_y_cutoff" in options:
+            try:
+                idx = options.index("--plot_y_cutoff")
+                settings.plot_y_cutoff = float(opts[idx][1])
+            except ValueError:
+                print("--plot_y_cutoff should be an number")
+                exit(-1)
+        if "--bench_dir" in options:
+            try:
+                idx = options.index("--bench_dir")
+                settings.bench_dir = Path(opts[idx][1])
+            except ValueError:
+                print("--bench_dir should be a valid path")
+                exit(-1)
+        if "--plot_dir" in options:
+            try:
+                idx = options.index("--plot_dir")
+                settings.plot_dir = Path(opts[idx][1])
+            except ValueError:
+                print("--plot_dir should be a valid path")
+                exit(-1)
+
+        if settings.plot and not settings.bench and "--bench_dir" not in options:
+            print(
+                "Need to specify --bench_dir when plotting without running a new benchmark"
+            )
+            exit(-1)
         return settings

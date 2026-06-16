@@ -1,6 +1,7 @@
 # MIT License
 #
 # Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+#               2025 Jan Gilcher, Jérôme Govinden
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -266,9 +267,16 @@ class ConfigParser:
         with open(self.filename) as f:
             configs: str = f.read()
             try:
-                return ConfigurationFile.model_validate_json(configs)
-            except ValidationError:
-                ta = TypeAdapter(List[Config])
-                return ConfigurationFile(
-                    name="", configurations=ta.validate_json(configs)
-                )
+                try:
+                    return ConfigurationFile.model_validate_json(configs)
+                except ValidationError as err:
+                    if err.errors()[0]["type"] == "model_type":
+                        ta = TypeAdapter(List[Config])
+                        return ConfigurationFile(
+                            name="", configurations=ta.validate_json(configs)
+                        )
+                    else:
+                        raise err from None
+            except ValidationError as err:
+                print(err.errors())
+                exit(-1)

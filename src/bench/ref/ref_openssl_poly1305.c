@@ -26,8 +26,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void init_hash(void) {}
+
 void hash(unsigned char *out, const unsigned char *in, unsigned long long inlen,
-          const unsigned char *key) {
+          unsigned char *key, const unsigned long long keylen) {
     EVP_MAC *mac = EVP_MAC_fetch(NULL, "POLY1305", "provider=default");
     EVP_MAC_CTX *ctx = EVP_MAC_CTX_new(mac);
 

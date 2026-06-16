@@ -1,0 +1,541 @@
+{
+    "name": "tBRW with classical over PF2265 and SB16",
+    "configurations": [
+
+        {
+            "skip": false,
+            "name": "1B Delay",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [57, 57, 57, 55],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": ["doublecarry", "doublecarryover"]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tBRW",
+                "parameters": [0],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "classical_2level_NB_UPK_Delay_a",
+                        "parameters": [1],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "classical_polynomial"
+                        }
+                    },
+                    "superblocksize": 16,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "tBRW"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "2B Delay",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [57, 57, 57, 55],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": ["doublecarry", "doublecarryover"]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tBRW",
+                "parameters": [0],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "classical_2level_NB_UPK_Delay_a",
+                        "parameters": [2],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "classical_polynomial"
+                        }
+                    },
+                    "superblocksize": 16,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "tBRW"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "3B Delay",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [57, 57, 57, 55],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": ["doublecarry", "doublecarryover"]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tBRW",
+                "parameters": [0],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "classical_2level_NB_UPK_Delay_a",
+                        "parameters": [3],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "classical_polynomial"
+                        }
+                    },
+                    "superblocksize": 16,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "tBRW"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "4B Delay",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [57, 57, 57, 55],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": ["doublecarry", "doublecarryover"]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tBRW",
+                "parameters": [0],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "classical_2level_NB_UPK_Delay_a",
+                        "parameters": [4],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "classical_polynomial"
+                        }
+                    },
+                    "superblocksize": 16,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "tBRW"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "6B Delay",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [57, 57, 57, 55],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": ["doublecarry", "doublecarryover"]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tBRW",
+                "parameters": [0],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "classical_2level_NB_UPK_Delay_a",
+                        "parameters": [6],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "classical_polynomial"
+                        }
+                    },
+                    "superblocksize": 16,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "tBRW"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "8B Delay",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [57, 57, 57, 55],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": ["doublecarry", "doublecarryover"]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tBRW",
+                "parameters": [0],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "classical_2level_NB_UPK_Delay_a",
+                        "parameters": [8],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "classical_polynomial"
+                        }
+                    },
+                    "superblocksize": 16,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "tBRW"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "12B Delay",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [57, 57, 57, 55],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": ["doublecarry", "doublecarryover"]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tBRW",
+                "parameters": [0],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "classical_2level_NB_UPK_Delay_a",
+                        "parameters": [12],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "classical_polynomial"
+                        }
+                    },
+                    "superblocksize": 16,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "tBRW"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        },
+
+        {
+            "skip": false,
+            "name": "16B Delay",
+            "ref": false,
+            "keysize": 28,
+            "blocksize": 28,
+            "tagsize": 29,
+            "field": {
+                "field_type": "crandallprime",
+                "pi": 226,
+                "delta": 5
+            },
+            "wordsize": 64,
+            "limbs": [57, 57, 57, 55],
+            "multiplication": {
+                "method": "schoolbook",
+                "options": ["doublecarry", "doublecarryover"]
+            },
+            "key_transform": {
+                "id": 13,
+                "options": null
+            },
+            "msg_transform": {
+                "id": 3,
+                "options": {
+                    "byte": "0x0",
+                    "mask": [
+                        "0xffffffffffffffff"
+                    ],
+                    "encodeLSB": false
+                }
+            },
+            "field_transform": {
+                "id": 1
+            },
+            "hash_transform":{
+                "name": "key_reuse_length_encoding"
+            },
+            "polynomial": {
+                "name": "tBRW",
+                "parameters": [0],
+                "options": [
+                    "inline_inner"
+                ],
+                "inner_polynomial": {
+                    "polynomial": {
+                        "name": "classical_2level_NB_UPK_Delay_a",
+                        "parameters": [16],
+                        "inner_polynomial": null,
+                        "test": {
+                            "name": "classical_polynomial"
+                        }
+                    },
+                    "superblocksize": 16,
+                    "superkeysize": 1
+                },
+                "test": {
+                    "name": "tBRW"
+                }
+            },
+            "keygenerator": {
+                "required": true,
+                "number_of_bytes": null
+            },
+            "description": ""
+        }
+    ]
+}

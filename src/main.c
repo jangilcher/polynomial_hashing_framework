@@ -1,6 +1,7 @@
 // MIT License
 //
 // Copyright (c) 2023 Jan Gilcher, Jérôme Govinden
+//               2025 Jan Gilcher, Jérôme Govinden
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +22,7 @@
 // SOFTWARE.
 
 #include "../include/hash.h"
+#include "key_expansion.h"
 #include <sodium.h>
 #include <stdio.h>
 
@@ -28,13 +30,28 @@ int main(int argc, char *argv[]) {
     if (sodium_init() < 0) {
         return -1;
     }
-
+    init_hash();
     size_t input_len = 1024 * 10; // max byte length of input
     size_t input_len_test = input_len;
     unsigned char in[input_len];
     // byte length of output = CRYPTO_HASH = OUTPUTSIZE
     unsigned char out[CRYPTO_HASH] = {0};
-    unsigned char key[KEYSIZE];
+#ifdef KEYGENERATOR
+    unsigned char pre_key[EXPANSION_KEY_SIZE];
+    size_t keylength = get_keylength(input_len);
+    unsigned char *key = malloc(keylength);
+    if (!key) {
+        exit(-1);
+    }
+#define KEYLENGTH ((unsigned long long)keylength)
+#else
+#ifndef SUPERKEYSIZE
+#define KEYLENGTH ((unsigned long long)KEYSIZE * NUM_KEYS)
+#else
+#define KEYLENGTH ((unsigned long long)KEYSIZE * (NUM_KEYS + SUPERKEYSIZE))
+#endif
+    unsigned char key[KEYLENGTH];
+#endif
 
     // generate key and input randomly
     // randombytes_buf(key, KEYSIZE);
@@ -42,7 +59,13 @@ int main(int argc, char *argv[]) {
 
     // generate key and input deterministicaly (for testing)
     unsigned char seed[randombytes_SEEDBYTES] = {1};
+#ifdef KEYGENERATOR
+    randombytes_buf_deterministic(pre_key, EXPANSION_KEY_SIZE, seed);
+    init(pre_key);
+    get(key, keylength);
+#else
     randombytes_buf_deterministic(key, KEYSIZE, seed);
+#endif
     randombytes_buf_deterministic(in, input_len, seed);
 
     //    printf("Key[ %d ]", KEYSIZE);
@@ -57,13 +80,15 @@ int main(int argc, char *argv[]) {
         sscanf(argv[1], "%zu", &input_len_test);
 
     // computing hash for input of length "input_len_test"
-    hash(out, in, input_len_test, key);
+    hash(out, in, input_len_test, key, KEYLENGTH);
     // print hash output
     printf("H[ %zu ] = ", input_len_test);
     for (int i = 0; i < CRYPTO_HASH; i++) {
         printf("%02x", out[i]);
     }
     printf("\n");
-
+#ifdef KEYGENERATOR
+    free(key);
+#endif
     return 0;
 }
