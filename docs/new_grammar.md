@@ -1,4 +1,4 @@
-# (New) Json Input
+# JSON Format for Configuration Files
 
 Each configuration is specified as json object.
 As a consequence of that the order of fields does not matter.

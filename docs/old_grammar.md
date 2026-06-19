@@ -1,4 +1,4 @@
-# Old Grammar
+# Legacy Format for Configuration Files
 Each line in a configuration defines one configuration.
 Lines starting with `#` are ignored, i.e. can be used for comments.
 

@@ -186,16 +186,26 @@ Note: The plotting depends on: numpy, scipy, pandas, and matplotlib. These requi
 -----------------------------------------------------------------------------------------------------
 ## Documentation
 
-Additional documentation is available in:
+Additional documentation is available in `./docs/`:
 
 ```text
-./docs/
+docs/ 
+├── basics.md                               # Setup notes and external dependencies 
+├── new_grammar.md                          # Current JSON format for configuration files
+├── old_grammar.md                          # Legacy format for configuration files 
+├── run_options.md                          # Command-line options for run.py 
+├── adding_new_polynomial.md                # Guide to adding a new generated polynomial construction 
+├── adding_new_reference_implementation.md  # Guide to adding a new external reference implementation 
+└── extracting_generated_c_code.md          # Guide to extracting generated C code for a specific config
 ```
 
 The documentation is still a work in progress.
 It currently includes:
 - a guide to configuration files (used to select and generate polynomial hash benchmarks),
-- a guide on options to `run.py` (used to run configuration files)
+- a guide on options to `run.py` (used to run configuration files),
+- a guide to add new polynomials to the framework,
+- a guide to add new reference implementations to the framework,
+- a guide to extract the generated C code for a specific configuration, i.e., the code for the polynomial, the field arithmetic and the transforms.
 
 
 ## Licenses
