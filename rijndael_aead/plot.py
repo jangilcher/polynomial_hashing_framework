@@ -53,12 +53,12 @@ plotstep = 8 # only plot every 8th byte size, reduces filesize and prevents pgf/
 plotytop = 3.5
 
 
-mpl.use('pgf')
-mpl.rcParams.update({
-    "pgf.texsystem": "pdflatex",
-    "text.usetex": True,
-    "font.family": "Times",
-})
+#mpl.use('pgf')
+#mpl.rcParams.update({
+#    "pgf.texsystem": "pdflatex",
+#    "text.usetex": True,
+#    "font.family": "Times",
+#})
 figx = 8 #8.5 * 2.54  # *4/3
 figy = 6#*0.5 #11 * 2.54 # * 0.83  # *3/4
 figy_mid = 6*0.575
@@ -125,6 +125,6 @@ for config, name in [cfg_rijndael_aead_comp]:
     f.legend(handles=legends_pf_128, ncol=2, bbox_to_anchor=[0.5,0.0375], loc='upper center')
     f.savefig(f"{name}.png", dpi=300, bbox_inches='tight')
     f.savefig(f"{name}.svg", dpi=300, bbox_inches='tight')
-    f.savefig(f"{name}.pgf", dpi=300, bbox_inches='tight')
+    # f.savefig(f"{name}.pgf", dpi=300, bbox_inches='tight')
     plt.close(f)
 
