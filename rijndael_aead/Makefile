@@ -1,6 +1,6 @@
 .SECONDARY:
 
-CC=gcc-12
+CC=gcc
 OBJ=obj
 ASM=asm
 BIN=bin

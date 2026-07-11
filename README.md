@@ -170,6 +170,7 @@ To run the best version for each AEAD variant (i.e. the concrete implementation 
 
 ```bash
 cd rijndael_aead
+make dir
 make MODE=bench FOLDER=bench/ REPETITIONS=25 STEPSIZE=1 ITERATIONS=1000 all 
 mkdir bench
 ./bin/rijndael256x6x_no_hash_bench
