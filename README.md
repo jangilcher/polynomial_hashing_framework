@@ -188,7 +188,7 @@ On some setups the benchmarks build via the above `make` command may run for an 
 For a quick replication with noisier results the `REPETITIONS` and `STEPSIZE` can be adjusted.
 For instance, the following parameters should results in benchmarks that terminate in seconds to minutes:
 ```bash
-make MODE=bench FOLDER=bench/ REPETITIONS=25 STEPSIZE=1 ITERATIONS=1000 all
+make MODE=bench FOLDER=bench/ REPETITIONS=5 STEPSIZE=100 ITERATIONS=1000 all
 ```
 
 Once the benchmarks are done, plots can be created by running `plot.py` using python3 inside the `rijndael_aead` folder.
