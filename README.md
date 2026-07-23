@@ -2,8 +2,12 @@
 
 This repository contains a code-generation, testing, and benchmarking framework for polynomial-based universal hash functions.
 
-The framework originally accompanied the paper **"SoK: Efficient Design and Implementation of Polynomial Hash Functions over Prime Fields"**, published at the IEEE Symposium on Security and Privacy 2024. 
-It has since been extended for **"New Designs of Multivariate-Polynomial Universal Hash Functions"** (to be published at ACM CCS 2026) to support multivariate polynomial hash designs, two-level hash constructions, and binary-field arithmetic.
+The framework originally accompanied the paper
+**"SoK: Efficient Design and Implementation of Polynomial Hash Functions over Prime Fields"**,
+published at the IEEE Symposium on Security and Privacy 2024. 
+It has since been extended for **"New Designs of Multivariate-Polynomial Universal Hash Functions"**
+(to be published at ACM CCS 2026) to support multivariate polynomial hash designs,
+two-level hash constructions, and binary-field arithmetic.
 
 The framework can be used to:
 - generate C implementations of polynomial hash functions,
@@ -36,7 +40,7 @@ The framework can be used to:
 
 
 ## Setup
-The easiest setup path is Docker. Manual setup is also supported.
+**The easiest setup path is Docker**. Manual setup is also supported but is prone to issues with dependency resolution.
 ### Docker Setup 
 We provide the necessary docker compose files to easily setup all dependencies.
 With docker compose properly setup on your system, simply run
@@ -64,7 +68,7 @@ https://doc.libsodium.org/installation
 
 #### 2. Install Sagemath (required for running the complete test suite, can be skipped if tests are not needed)
 To install sagemath dependencies we recommend following the instructions here: https://doc.sagemath.org/html/en/installation/conda.html
-In particular we recommend installing SageMath via
+In particular we recommend installing SageMath after configuring the `conda-forge` channel as document in the instructions linked above
 ```bash
 conda create -n sage_poly sage python=3.11
 ```
@@ -72,7 +76,8 @@ or
 ```bash
 mamba create -n sage_poly sage python=3.11
 ```
-(Note however, that depending on pre-existing software on the system one can run into issues with conda/mamba dependency resolution, in particular on arm based Macs.)
+(Note however, that depending on pre-existing software on the system one can run into issues with conda/mamba dependency resolution,
+in particular on arm based Macs.)
 
 Finally activate the newly created `sage_poly` environment via `mamba activate sage_poly` or `conda activate sage_poly` and continue with the following commands in the same shell.
 
@@ -178,6 +183,12 @@ mkdir bench
 ./bin/rijndael256x_mhp_nmh256x6_bench
 ./bin/rijndael256x_poly128x4_bench
 ./bin/rijndael256x_poly256x4_bench
+```
+On some setups the benchmarks build via the above `make` command may run for an extremely long time.
+For a quick replication with noisier results the `REPETITIONS` and `STEPSIZE` can be adjusted.
+For instance, the following parameters should results in benchmarks that terminate in seconds to minutes:
+```bash
+make MODE=bench FOLDER=bench/ REPETITIONS=25 STEPSIZE=1 ITERATIONS=1000 all
 ```
 
 Once the benchmarks are done, plots can be created by running `plot.py` using python3 inside the `rijndael_aead` folder.

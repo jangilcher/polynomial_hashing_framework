@@ -5,7 +5,7 @@ kiwisolver
 matplotlib==3.8.0
 numpy
 packaging
-pandas
+pandas<=3.0.2
 Pillow
 py-cpuinfo
 pyparsing
