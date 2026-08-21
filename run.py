@@ -1152,21 +1152,30 @@ for config, file in configs:
             make_cmd.append("VERBOSE=1")
         if settings.build:
             make_cmd.append("dir")
+            pretty_deps = ''
             if not ref:
                 make_cmd.append("build")
                 make_cmd.append("build_bench")
+                pretty_deps += 'PRETTY_DEPS="build build_bench'
                 if is_NewHashConfig(current_config) and is_BinaryFieldSpec(
                     current_config.field
                 ):
                     make_cmd.append("build_binary_arith_test")
+                    pretty_deps += " build_binary_arith_test"
                 else:
                     make_cmd.append("build_arith_test")
+                    pretty_deps += " build_arith_test"
                 make_cmd.append("build_lib")
+                pretty_deps += " build_lib"
                 if settings.ctgrind:
                     make_cmd.append("build_ctgrind")
+                    pretty_deps += " build_ctgrind"
+                pretty_deps += '"'
             else:
                 make_cmd.append("build_reference")
+                pretty_deps += 'PRETTY_DEPS="build_reference"'
             if os.system("which clang-format > /dev/null") == 0:
+                make_cmd.append(pretty_deps)
                 make_cmd.append("pretty_print_intermediary")
             print("starting Build")
         if settings.verbose:
