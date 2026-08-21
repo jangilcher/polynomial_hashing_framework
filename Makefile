@@ -107,6 +107,8 @@ DEFS = $(_DEFS)
 endif
 DEPS = $(_DEPS)
 
+.PHONY : clean binclean plotclean resultclean deepclean dir pretty_print_intermediary pretty_print_all_intermediary
+
 dir:
 	mkdir -p $(OBJDIR) $(BINDIR) $(ASMDIR) $(BENCHDIR) $(TESTRESDIR) $(PLOTDIR)
 
