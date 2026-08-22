@@ -230,10 +230,10 @@ build_lib: $(DEPS) $(OBJDIR)/hash.o
 build_reference: $(REFDEPS) $(OBJDIR)/bench.o
 	$(CC) $(CCFLAGS) $(DEFS) -o bin/$(BINNAME)_bench $^ $(INCDIRS) $(LIBDIRS) $(LDFLAGS)
 
-pretty_print_intermediary:
+pretty_print_intermediary: $(PRETTY_DEPS)
 	clang-format --style='{BasedOnStyle: LLVM, IndentWidth: 4}' -i $(ASMDIR)/*.i
 
-pretty_print_all_intermediary:
+pretty_print_all_intermediary: $(PRETTY_DEPS)
 	clang-format --style='{BasedOnStyle: LLVM, IndentWidth: 4}' -i $(_ASMDIR)/**/*.i
 
 bench: build_bench
