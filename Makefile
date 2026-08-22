@@ -107,7 +107,7 @@ DEFS = $(_DEFS)
 endif
 DEPS = $(_DEPS)
 
-.PHONY : clean binclean plotclean resultclean deepclean dir pretty_print_intermediary pretty_print_all_intermediary
+.PHONY : clean binclean plotclean resultclean deepclean dir pretty_print_intermediary pretty_print_all_intermediary pf_arithmetic mersenne_arithmetic bf_arithmetic build build_ctgrind build_bench build_arith_test build_binary_arith_test build_lib build_reference bench bench_reference
 
 dir:
 	mkdir -p $(OBJDIR) $(BINDIR) $(ASMDIR) $(BENCHDIR) $(TESTRESDIR) $(PLOTDIR)
