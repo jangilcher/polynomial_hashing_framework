@@ -78,7 +78,7 @@ void hash_128_karatmult3(unsigned char *out, const unsigned char *in,
     int /*i,*/ j, /*k, l,*/ noOfBytes, /*length,*/ fullBlocks, remaining,
         finalblock, partial128, pad = 0, full128, hornerLength = 0;
 
-    __m128i aa1[MAX], key, digest[MAX], result;
+    __m128i aa1[MAX], key, digest[MAX], result = {0, 0};
 
     // double tmpd;
 
